@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>單字記憶卡片</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkBg: '#0f1013',
+            cardBg: '#181a20',
+            cardBorder: '#282a35',
+            innerBox: '#121318',
+            primaryBlue: '#3b82f6',
+            accentBlue: '#2563eb',
+          }
+        }
+      }
+    }
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      background-color: #0d0e12;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-6">
+  <div id="root" class="w-full max-w-md mx-auto"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // 預設示範數據
+    const INITIAL_WORDS = [
+      {
+        id: "4156",
+        group: "Group 84",
+        word: "sour",
+        pos: "adj. / v.",
+        meaning: "酸的，酸腐的；變酸，變壞",
+        exampleEn: "The milk has gone sour.",
+        exampleZh: "牛奶已經變酸了。",
+        etymology: "日耳曼語 sur (酸的)",
+        tip: "sour (酸) 的檸檬讓人皺眉",
+        status: "none" // 'mastered', 'review', 'none'
+      },
+      {
+        id: "4157",
+        group: "Group 84",
+        word: "abundant",
+        pos: "adj.",
+        meaning: "豐富的，充裕的",
+        exampleEn: "Fish are abundant in the lake.",
+        exampleZh: "這座湖裏的魚很豐富。",
+        etymology: "ab- (離開/大量) + und (波浪) -> 像波浪一樣溢出",
+        tip: "A (一個) + bun (小麵包) + dant (蛋) -> 麵包跟蛋都很豐富",
+        status: "none"
+      },
+      {
+        id: "4158",
+        group: "Group 84",
+        word: "reluctant",
+        pos: "adj.",
+        meaning: "不情願的，勉強的",
+        exampleEn: "She was reluctant to leave the party.",
+        exampleZh: "她不太情願離開派對。",
+        etymology: "re- (反對) + luct (爭鬥) -> 在內心反抗拉扯",
+        tip: "re (熱) + luc (路) -> 大熱天走路讓人很勉強不情願",
+        status: "none"
+      }
+    ];
+
+    function App() {
+      const [words, setWords] = useState(() => {
+        const saved = localStorage.getItem('flashcard_words');
+        return saved ? JSON.parse(saved) : INITIAL_WORDS;
+      });
+      
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [isFlipped, setIsFlipped] = useState(false);
+      const [mode, setMode] = useState('single'); // 'single' | 'endless'
+      const fileInputRef = useRef(null);
+
+      useEffect(() => {
+        localStorage.setItem('flashcard_words', JSON.stringify(words));
+      }, [words]);
+
+      const currentCard = words[currentIndex] || INITIAL_WORDS[0];
+
+      // 統計數據
+      const masteredCount = words.filter(w => w.status === 'mastered').length;
+      const needWorkCount = words.length - masteredCount;
+      const progressPercent = ((currentIndex + 1) / words.length) * 100;
+
+      // 語音發音
+      const speakWord = (e) => {
+        e.stopPropagation();
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(currentCard.word);
+          utterance.lang = 'en-US';
+          utterance.rate = 0.85;
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+
+      // 翻轉卡片
+      const handleFlip = () => {
+        setIsFlipped(!isFlipped);
+      };
+
+      // 上一張 / 下一張
+      const handleNext = () => {
+        setIsFlipped(false);
+        setTimeout(() => {
+          setCurrentIndex((prev) => (prev + 1) % words.length);
+        }, 150);
+      };
+
+      const handlePrev = () => {
+        setIsFlipped(false);
+        setTimeout(() => {
+          setCurrentIndex((prev) => (prev - 1 + words.length) % words.length);
+        }, 150);
+      };
+
+      // 標記狀態
+      const handleMarkStatus = (status, e) => {
+        e.stopPropagation();
+        const updated = [...words];
+        updated[currentIndex] = { ...updated[currentIndex], status };
+        setWords(updated);
+        handleNext();
+      };
+
+      // JSON 匯入
+      const handleImportJSON = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const imported = JSON.parse(event.target.result);
+            if (Array.isArray(imported) && imported.length > 0) {
+              setWords(imported);
+              setCurrentIndex(0);
+              setIsFlipped(false);
+              alert(`成功載入 ${imported.length} 個單字！`);
+            } else {
+              alert('JSON 格式不符，需為單字陣列。');
+            }
+          } catch (err) {
+            alert('解析 JSON 失敗，請檢查檔案內容。');
+          }
+        };
+        reader.readAsText(file);
+      };
+
+      // 重置數據
+      const handleReset = () => {
+        if (confirm('確定要重置所有單字記憶進度嗎？')) {
+          setWords(INITIAL_WORDS.map(w => ({ ...w, status: 'none' })));
+          setCurrentIndex(0);
+          setIsFlipped(false);
+        }
+      };
+
+      return (
+        <div className="flex flex-col gap-3.5 w-full text-gray-200 select-none">
+          
+          {/* Top Header Card */}
+          <div className="bg-[#16181d] border border-[#262833] rounded-2xl p-3.5 shadow-lg flex flex-col gap-3">
+            
+            {/* Row 1: Title & JSON / Reset */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="bg-[#1d3557] text-[#60a5fa] border border-[#2b4c7e] text-xs font-semibold px-2.5 py-1 rounded-full">
+                  {currentCard.group || "Group 84"}
+                </span>
+                <span className="font-bold text-base tracking-wide text-gray-100">
+                  單字記憶卡片
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs">
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1 bg-[#222530] hover:bg-[#2c303e] border border-[#323646] text-gray-300 px-2.5 py-1 rounded-lg transition"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  JSON
+                </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImportJSON} 
+                  accept=".json" 
+                  className="hidden" 
+                />
+
+                <button 
+                  onClick={handleReset}
+                  className="flex items-center gap-1 bg-[#222530] hover:bg-[#2c303e] border border-[#323646] text-gray-300 px-2.5 py-1 rounded-lg transition"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  重置
+                </button>
+              </div>
+            </div>
+
+            {/* Row 2: Mode Toggle & Checkbox */}
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <div className="bg-[#101115] p-1 rounded-xl flex items-center border border-[#21232e]">
+                <button 
+                  onClick={() => setMode('single')}
+                  className={`px-3 py-1 rounded-lg font-medium transition ${mode === 'single' ? 'bg-[#2b4c7e] text-blue-200 shadow' : 'text-gray-400 hover:text-gray-200'}`}
+                >
+                  單次打亂過關
+                </button>
+                <button 
+                  onClick={() => setMode('endless')}
+                  className={`px-3 py-1 rounded-lg font-medium transition ${mode === 'endless' ? 'bg-[#2b4c7e] text-blue-200 shadow' : 'text-gray-400 hover:text-gray-200'}`}
+                >
+                  動態權重無盡
+                </button>
+              </div>
+
+              <label className="flex items-center gap-1.5 text-gray-300 cursor-pointer text-xs">
+                <input type="checkbox" defaultChecked className="rounded border-gray-600 text-blue-600 focus:ring-0 bg-[#1a1c23]" />
+                <span className="text-gray-300">{currentCard.group} (4151~4200)</span>
+              </label>
+            </div>
+
+            {/* Row 3: Progress Bar */}
+            <div className="w-full bg-[#111217] h-1.5 rounded-full overflow-hidden border border-[#21232e]">
+              <div 
+                className="bg-blue-500 h-full transition-all duration-300 rounded-full"
+                style={{ width: `${progressPercent}%` }}
+              ></div>
+            </div>
+
+            {/* Row 4: Card Counts */}
+            <div className="flex justify-between text-xs text-gray-400 font-medium tracking-wide">
+              <span>卡片 {currentIndex + 1} / {words.length}</span>
+              <span>熟練: <strong className="text-emerald-400">{masteredCount}</strong> | 待加強: <strong className="text-rose-400">{needWorkCount}</strong></span>
+            </div>
+
+          </div>
+
+          {/* Main Flashcard Container */}
+          <div 
+            onClick={handleFlip}
+            className="cursor-pointer min-h-[380px] bg-[#181a20] border border-[#282a36] rounded-2xl p-5 shadow-2xl relative flex flex-col justify-between transition-all duration-200 hover:border-[#3a3d4f]"
+          >
+            {/* FRONT FACE */}
+            {!isFlipped ? (
+              <div className="flex flex-col justify-between h-full min-h-[350px]">
+                {/* Header Tag inside card */}
+                <div className="flex justify-between items-center text-xs text-gray-400 font-mono">
+                  <span className="bg-[#121318] px-2.5 py-1 rounded-md border border-[#222430]">
+                    ID: {currentCard.id}
+                  </span>
+                  <span className="bg-[#1d3557]/60 text-[#60a5fa] border border-[#2b4c7e]/50 px-2.5 py-0.5 rounded-full font-sans text-[11px]">
+                    {currentCard.group}
+                  </span>
+                </div>
+
+                {/* Word Center Display */}
+                <div className="flex flex-col items-center justify-center my-auto py-8">
+                  <div className="flex items-center justify-center gap-3">
+                    <h1 className="text-4xl font-extrabold text-white tracking-tight">{currentCard.word}</h1>
+                    <button 
+                      onClick={speakWord}
+                      title="朗讀發音"
+                      className="p-2 rounded-full hover:bg-[#252834] text-blue-400 transition"
+                    >
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <p className="text-gray-400 italic text-sm mt-3 font-serif">{currentCard.pos}</p>
+                </div>
+
+                {/* Flip Hint Footer */}
+                <div className="text-center text-xs text-gray-500 flex items-center justify-center gap-1.5 pt-2">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  點擊卡片翻面看解答
+                </div>
+              </div>
+            ) : (
+              /* BACK FACE */
+              <div className="flex flex-col justify-between h-full min-h-[350px] gap-3">
+                {/* Header in Back */}
+                <div className="flex justify-between items-baseline border-b border-[#282a36] pb-2.5">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl font-bold text-white tracking-wide">{currentCard.word}</span>
+                    <span className="text-xs text-gray-400 italic font-serif">{currentCard.pos}</span>
+                  </div>
+                  <span className="text-xs text-gray-500 font-mono">ID: {currentCard.id}</span>
+                </div>
+
+                {/* Chinese Definition */}
+                <div className="text-lg font-bold text-gray-100 tracking-wide py-0.5">
+                  {currentCard.meaning}
+                </div>
+
+                {/* Example Sentence Container */}
+                <div className="bg-[#121318] rounded-xl p-3 border border-[#222430] text-left">
+                  <p className="text-gray-200 font-medium text-sm sm:text-base leading-snug">{currentCard.exampleEn}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm mt-1">{currentCard.exampleZh}</p>
+                </div>
+
+                {/* ===== 核心需求修改：兩橫列獨立堆疊（不擠在同一列） ===== */}
+                <div className="flex flex-col gap-2.5">
+                  {/* Row 1: 詞根 / 結構 */}
+                  <div className="bg-[#121318] rounded-xl p-3 border border-[#222430] text-left">
+                    <div className="text-xs text-gray-400 font-medium mb-1 flex items-center gap-1">
+                      <span>詞根 / 結構</span>
+                    </div>
+                    <div className="text-sm text-gray-200 font-normal">
+                      {currentCard.etymology || "無拆解資訊"}
+                    </div>
+                  </div>
+
+                  {/* Row 2: 記憶助記 Tip */}
+                  <div className="bg-[#121318] rounded-xl p-3 border border-[#222430] text-left">
+                    <div className="text-xs text-gray-400 font-medium mb-1 flex items-center gap-1">
+                      <span>記憶助記 Tip</span>
+                    </div>
+                    <div className="text-sm text-gray-200 font-normal">
+                      {currentCard.tip || "無記憶提示"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons: 沒記住 / 記住了 */}
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <button 
+                    onClick={(e) => handleMarkStatus('review', e)}
+                    className="flex items-center justify-center gap-1.5 bg-[#421317]/80 hover:bg-[#58181f] text-rose-300 border border-[#6b1d25] font-medium text-sm py-2.5 rounded-xl transition shadow-md"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    沒記住
+                  </button>
+
+                  <button 
+                    onClick={(e) => handleMarkStatus('mastered', e)}
+                    className="flex items-center justify-center gap-1.5 bg-[#0d3b2e]/80 hover:bg-[#124e3d] text-emerald-300 border border-[#18654f] font-medium text-sm py-2.5 rounded-xl transition shadow-md"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    記住了
+                  </button>
+                </div>
+
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Navigation Control Bar */}
+          <div className="flex items-center justify-between gap-2 text-xs font-medium">
+            <button 
+              onClick={handlePrev}
+              className="flex-1 bg-[#16181d] hover:bg-[#20232b] border border-[#262833] text-gray-300 py-2.5 rounded-xl transition flex items-center justify-center gap-1"
+            >
+              ← 上一個
+            </button>
+
+            <button 
+              onClick={handleFlip}
+              className="flex-1 bg-[#1d212a] hover:bg-[#272c38] border border-[#303646] text-gray-200 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow"
+            >
+              翻轉卡片 🔄
+            </button>
+
+            <button 
+              onClick={handleNext}
+              className="flex-1 bg-[#16181d] hover:bg-[#20232b] border border-[#262833] text-gray-300 py-2.5 rounded-xl transition flex items-center justify-center gap-1"
+            >
+              下一個 →
+            </button>
+          </div>
+
+          {/* Bottom Feedback Bar */}
+          <div className="flex justify-end gap-3 pt-1 text-gray-500">
+            <button className="hover:text-gray-300 transition">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+            </button>
+            <button className="hover:text-gray-300 transition">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"/></svg>
+            </button>
+          </div>
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
