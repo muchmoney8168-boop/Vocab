@@ -1,51 +1,164 @@
-/* STREAMING_CHUNK:Defining vocabulary dataset JSON... */
 [
-{
-"id": 4162,
-"word": "sow",
-"phonetic": "/soʊ/",
-"partOfSpeech": "v.",
-"translation": "播種；散布",
-"example": "He decided to sow the seeds in the early spring."
-},
-{
-"id": 4163,
-"word": "reap",
-"phonetic": "/riːp/",
-"partOfSpeech": "v.",
-"translation": "收割；獲得",
-"example": "You reap what you sow."
-},
-{
-"id": 4164,
-"word": "abundant",
-"phonetic": "/əˈbʌndənt/",
-"partOfSpeech": "adj.",
-"translation": "豐富的；充裕的",
-"example": "The country has an abundant supply of natural gas."
-},
-{
-"id": 4165,
-"word": "perseverance",
-"phonetic": "/ˌpɜːrsəˈvɪrəns/",
-"partOfSpeech": "n.",
-"translation": "毅力；堅持不懈",
-"example": "It took perseverance to overcome all the obstacles."
-},
-{
-"id": 4166,
-"word": "resilient",
-"phonetic": "/rɪˈzɪliənt/",
-"partOfSpeech": "adj.",
-"translation": "有彈性的；能迅速恢復的",
-"example": "The local economy proved to be remarkably resilient."
-},
-{
-"id": 4167,
-"word": "catalyst",
-"phonetic": "/ˈkætəlɪst/",
-"partOfSpeech": "n.",
-"translation": "催化劑；促進因素",
-"example": "The announcement acted as a catalyst for reform."
-}
+  {
+    "id": 4151,
+    "en": "sore",
+    "pos": "adj.",
+    "zh": "疼痛的",
+    "ex": "Poor girl! It must be extreme sore. Be brave!<br>可憐的女孩，一定很痛吧。勇敢一點喔。",
+    "root": "古英語 sār（受傷痛楚）",
+    "mem": "諧音「瘦兒」：太過瘦弱的孩子跌倒容易感到疼痛。"
+  },
+  {
+    "id": 4152,
+    "en": "sorrow",
+    "pos": "n./v.",
+    "zh": "悲傷",
+    "ex": "I don't know how to throw away my sorrow; maybe I just keep thinking too much.<br>我不知道如何拋棄我的煩惱，或許我只是想太多。",
+    "root": "原始日耳曼語 sorgō（憂慮受創）",
+    "mem": "sor (sore 痛) + row (划船)：獨自在寒風中划船，心中充滿悲傷。"
+  },
+  {
+    "id": 4153,
+    "en": "sorrowful",
+    "pos": "adj.",
+    "zh": "悲傷的",
+    "ex": "Nobody can understand my sorrowful feeling.<br>沒人能了解我的悲傷的心情。",
+    "root": "sorrow (悲傷) + -ful (充滿…的)",
+    "mem": "心中充滿了 sorrow（悲傷），神情自然很悲傷的。"
+  },
+  {
+    "id": 4154,
+    "en": "sort",
+    "pos": "n./v.",
+    "zh": "種類 / 把…分類",
+    "ex": "All sorts of the organic food are available in that supermarket.<br>所有種類的有機食物，都可在那家超市買到。",
+    "root": "拉丁語 sors（類別、份額）",
+    "mem": "諧音「排序」：將相同種類的東西進行排序與分類。"
+  },
+  {
+    "id": 4155,
+    "en": "soul",
+    "pos": "n.",
+    "zh": "靈魂",
+    "ex": "Do you believe that the soul will come out after the people died?<br>你相信人死後，靈魂會出現？",
+    "root": "古英語 sāwol（來自水域的神聖精神體）",
+    "mem": "聯想 Soul music（靈魂樂）：震撼人心靈魂的音樂。"
+  },
+  {
+    "id": 4156,
+    "en": "sour",
+    "pos": "adj./v.",
+    "zh": "酸的；酸臭味的 / 使變酸",
+    "ex": "The yogurt has soured in the hot weather.<br>在熱天氣當中，優格已經變酸了。",
+    "root": "原始日耳曼語 sūraz（發酵變酸）",
+    "mem": "諧音「騷」：牛奶變酸發臭後會散發一股酸臭味。"
+  },
+  {
+    "id": 4157,
+    "en": "source",
+    "pos": "n.",
+    "zh": "根源；來源",
+    "ex": "Can you tell me how to find the sources of this research?<br>你能告訴我如何找到這個研究報告的來源？",
+    "root": "拉丁語 surgere（湧出、升起）",
+    "mem": "水流湧出的源頭，就是萬物的來源與根源。"
+  },
+  {
+    "id": 4158,
+    "en": "sourness",
+    "pos": "n.",
+    "zh": "酸味；不悅",
+    "ex": "Don't you notice the sourness of the milk! Throw it to the garbage can.<br>你沒發現這個牛奶的酸味！把它丟到垃圾桶。",
+    "root": "sour (酸的) + -ness (名詞字尾)",
+    "mem": "sour（酸的）轉為名詞，代表食物的酸味或臉色不悅。"
+  },
+  {
+    "id": 4159,
+    "en": "south",
+    "pos": "n./adv./adj.",
+    "zh": "南方 / 往南地 / 南的",
+    "ex": "Thailand and Cambodia are in the south of China.<br>泰國和柬埔寨在中國的南方。",
+    "root": "與 sun（太陽）同源（陽光充沛之處）",
+    "mem": "太陽 (Sun) 最刺眼明亮的方位就是南方。"
+  },
+  {
+    "id": 4160,
+    "en": "southern",
+    "pos": "adj.",
+    "zh": "南方的",
+    "ex": "My grandmother used to live in the southern part of a small town in Taiwan.<br>我的阿嬤以前住在台灣一個小鎮的南方地帶。",
+    "root": "south + -ern (方向形容詞字尾)",
+    "mem": "south 加上方向字尾，即為南方的。"
+  },
+  {
+    "id": 4161,
+    "en": "souvenir",
+    "pos": "n.",
+    "zh": "紀念品",
+    "ex": "Did you buy any souvenirs as you were an exchange student in America?<br>當你在美國當交換學生時有沒有買任何紀念品？",
+    "root": "法文 sub- (從底下) + venir (來到)",
+    "mem": "讓旅行回憶重新來到心中的物件，就是紀念品。"
+  },
+  {
+    "id": 4162,
+    "en": "sow",
+    "pos": "v.",
+    "zh": "播種",
+    "ex": "My grandmother sowed the filed with seeds.<br>我的外婆在田裡播種。",
+    "root": "古英語 sāwan（撒種）",
+    "mem": "諧音「搜」：農夫邊搜尋合適土壤邊播種。"
+  },
+  {
+    "id": 4163,
+    "en": "spaceship",
+    "pos": "n.",
+    "zh": "太空船",
+    "ex": "I dreamed that I was a captain of a spaceship.<br>我夢到我是位在太空船上的船長。",
+    "root": "space (太空) + ship (船)",
+    "mem": "在廣袤 space 中航行的 ship，就是太空船。"
+  },
+  {
+    "id": 4164,
+    "en": "span",
+    "pos": "n.",
+    "zh": "一段時間",
+    "ex": "After a long span of ten years, she finally achieved her dream.<br>經過十年時間後，她終於達成夢想。",
+    "root": "手掌張開大拇指到小指的跨度",
+    "mem": "跨過手掌的一跨，引申為跨越了一段時間。"
+  },
+  {
+    "id": 4165,
+    "en": "spare",
+    "pos": "v./adj.",
+    "zh": "給予 / 備用的",
+    "ex": "Can you spare me a tire? Mine is damaged.<br>你能給我一個備胎嗎？我的輪胎壞了。",
+    "root": "古英語 spær（節省留存的）",
+    "mem": "spare tire（備胎）：將多餘留存的東西給予急需的人。"
+  },
+  {
+    "id": 4166,
+    "en": "spark",
+    "pos": "n.",
+    "zh": "火星；火花",
+    "ex": "The fire of the forest often caused by a small cigarette spark.<br>森林的火災，通常因為一個香菸的花火引起。",
+    "root": "擬聲詞（木柴爆裂之聲）",
+    "mem": "在公園 (park) 的黑夜裡，香菸的火花 (spark) 很明顯。"
+  },
+  {
+    "id": 4167,
+    "en": "sparkle",
+    "pos": "v.",
+    "zh": "吐出火花；閃耀",
+    "ex": "My sister, Anne got married yesterday. I saw her eyes sparkled with happiness.<br>我的姐姐，安妮，昨天結婚了。我看她的眼神閃耀著幸福。",
+    "root": "spark + -le (連續反覆動作)",
+    "mem": "火花 (spark) 連續不斷產生 (-le)，眼神燦爛閃耀。"
+  },
+  {
+    "id": 4168,
+    "en": "sparkling",
+    "pos": "adj.",
+    "zh": "吐出火花的；閃亮",
+    "ex": "",
+    "root": "sparkle + -ing (形容詞字尾)",
+    "mem": "sparkling water 就是氣泡水，像火花般閃亮發泡的。"
+  }
 ]
