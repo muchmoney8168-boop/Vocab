@@ -3,380 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>單字記憶卡片</title>
+    <title>單字記憶卡片 (Vocab App)</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .perspective-1000 { perspective: 1000px; }
-        .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-        
-        * { -webkit-tap-highlight-color: transparent; }
 
-        /* 拖曳上傳浮層提示 */
-        .drag-active {
-            border-color: #a855f7 !important;
-            background-color: rgba(168, 85, 247, 0.1) !important;
+    <style>
+        body {
+            background-color: #0f0f11; /* 非常深的深灰色背景，符合截圖風格 */
+            color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 3D 翻轉卡片必備的自定義 CSS */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden; /* Safari 支援 */
+        }
+        
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* 隱藏原生檔案上傳按鈕 */
+        input[type="file"] {
+            display: none;
         }
     </style>
 </head>
-<body class="bg-[#121212] text-gray-200 font-sans h-screen flex flex-col overflow-hidden selection:bg-purple-500 selection:text-white">
+<body>
+    <div id="root"></div>
 
-    <header class="flex justify-between items-center px-4 py-3 border-b border-gray-800 bg-[#181818]">
-        <div class="flex items-center gap-2">
-            <span class="bg-purple-900/50 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wider">
-                Flashcard App
-            </span>
-            <h1 class="text-base font-bold text-white hidden sm:block">單字記憶卡片</h1>
-        </div>
-        
-        <div class="flex items-center gap-2">
-            <!-- 隱藏的檔案上傳 Input -->
-            <input type="file" id="jsonFileInput" accept=".json" class="hidden">
-            
-            <!-- 匯入 JSON 按鈕 -->
-            <button id="importBtn" class="px-3 py-1.5 rounded-lg border border-purple-500/40 bg-purple-900/20 text-purple-300 text-xs sm:text-sm hover:bg-purple-900/40 transition-colors flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                匯入 JSON
-            </button>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-            <!-- 重置/清除資料按鈕 -->
-            <button id="resetBtn" class="px-3 py-1.5 rounded-lg border border-gray-700 text-gray-400 text-xs sm:text-sm hover:bg-gray-800 hover:text-gray-200 transition-colors flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                重新載入
-            </button>
-        </div>
-    </header>
+        function FlashcardApp() {
+            // 狀態管理
+            const [words, setWords] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [isFlipped, setIsFlipped] = useState(false);
+            const [stats, setStats] = useState({ familiar: 0, needReview: 0 });
+            const [isLoading, setIsLoading] = useState(true);
+            const [currentGroup, setCurrentGroup] = useState("Group 84"); // 預設群組名
 
-    <section class="px-4 pt-3 pb-1 max-w-md mx-auto w-full">
-        <div class="w-full bg-gray-800 rounded-full h-1.5 mb-2 overflow-hidden">
-            <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-        </div>
-        <div class="flex justify-between text-xs text-gray-400">
-            <span id="modeText">準備載入單字庫...</span>
-            <span id="dataSourceBadge" class="text-purple-400 font-mono text-[10px] bg-purple-950/60 px-1.5 py-0.5 rounded border border-purple-800/40">未載入</span>
-        </div>
-    </section>
+            // 處理檔案上傳的 ref
+            const fileInputRef = useRef(null);
 
-    <main class="flex-grow flex items-center justify-center p-4 w-full max-w-md mx-auto perspective-1000 relative">
-        
-        <!-- 當前未載入資料時顯示的引導上傳區 -->
-        <div id="emptyState" class="absolute inset-4 z-10 bg-[#1e1e1e]/90 border-2 border-dashed border-gray-700 rounded-3xl flex flex-col items-center justify-center p-6 text-center transition-all">
-            <div class="w-16 h-16 rounded-full bg-purple-900/30 border border-purple-500/30 flex items-center justify-center mb-4 text-purple-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-            </div>
-            <h3 class="text-lg font-bold text-white mb-1">未讀取到單字庫</h3>
-            <p class="text-xs text-gray-400 mb-6 leading-relaxed">
-                系統嘗試自動讀取同目錄下的 <code class="text-purple-300 font-mono">words.json</code><br>
-                如尚未讀取，請點擊下方按鈕或將 JSON 檔拖曳至此。
-            </p>
-            <button id="uploadTriggerBtn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm rounded-xl transition-all shadow-lg shadow-purple-900/30 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                選擇 words.json 檔案
-            </button>
-        </div>
+            useEffect(() => {
+                // 嘗試自動載入同目錄下的 文字.json (對應 GitHub Pages 的設定)
+                fetch('./文字.json')
+                    .then(res => {
+                        if (!res.ok) throw new Error("找不到檔案");
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (Array.isArray(data) && data.length > 0) {
+                            setWords(data);
+                            // 嘗試從第一筆資料中提取群組名稱
+                            if (data[0].group) setCurrentGroup(data[0].group);
+                        } else {
+                            loadMockData(); // 如果檔案是空的，載入預設資料
+                        }
+                    })
+                    .catch(err => {
+                        console.warn("無法自動載入 文字.json，使用預設單字庫:", err);
+                        loadMockData();
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                    });
+            }, []);
 
-        <!-- 記憶卡片本體 -->
-        <div id="flashcard" class="relative w-full aspect-square max-h-[380px] min-h-[280px] cursor-pointer transform-style-3d transition-transform duration-500">
-            
-            <!-- 卡片正面 (英文單字) -->
-            <div class="absolute inset-0 bg-[#1e1e1e] border border-gray-700/80 rounded-3xl shadow-2xl flex flex-col items-center justify-center p-6 backface-hidden select-none">
-                <div class="absolute top-4 right-5 text-xs text-gray-500 font-mono">ID: <span id="cardId">---</span></div>
-                
-                <!-- 發音按鈕與單字 -->
-                <div class="flex items-center gap-3">
-                    <h2 id="cardFront" class="text-4xl sm:text-5xl font-bold text-white text-center break-words">---</h2>
-                    <button id="ttsBtn" title="朗讀單字" class="p-2 rounded-full bg-purple-900/30 text-purple-400 hover:bg-purple-800/50 hover:text-purple-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-                    </button>
-                </div>
+            const loadMockData = () => {
+                setWords([
+                    { id: 4162, word: "sow", part_of_speech: "v.", meaning: "播種；散佈", group: "Group 84" },
+                    { id: 4163, word: "reap", part_of_speech: "v.", meaning: "收割；獲得", group: "Group 84" },
+                    { id: 4164, word: "cultivate", part_of_speech: "v.", meaning: "耕作；培養", group: "Group 84" }
+                ]);
+            };
 
-                <p id="cardPhonetic" class="text-gray-400 mt-3 text-base sm:text-lg font-mono">---</p>
-                
-                <div class="absolute bottom-5 text-xs text-gray-500 flex items-center gap-1.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-10.05l5.67-5.67"/></svg>
-                    點擊翻轉查看解釋
-                </div>
-            </div>
+            const handleFileUpload = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
 
-            <!-- 卡片背面 (中文解釋與例句) -->
-            <div class="absolute inset-0 bg-[#24222a] border border-purple-800/60 rounded-3xl shadow-2xl flex flex-col items-center justify-center p-6 backface-hidden rotate-y-180 select-none">
-                <span id="cardPart" class="text-purple-400 font-semibold mb-2 text-sm bg-purple-950/80 px-2.5 py-0.5 rounded-full border border-purple-800/40">詞性</span>
-                <h2 id="cardBack" class="text-2xl sm:text-3xl font-bold text-white text-center">中文解釋</h2>
-                <p id="cardExample" class="text-gray-300 mt-5 text-center italic text-xs sm:text-sm px-2 bg-gray-900/40 p-3 rounded-xl border border-gray-800/60 w-full">例句載入中...</p>
-            </div>
-            
-        </div>
-    </main>
-
-    <footer class="p-4 pb-6 flex flex-col gap-3 w-full max-w-md mx-auto">
-        <div class="flex justify-between items-center gap-3 w-full">
-            <button id="prevBtn" class="flex-1 py-3 px-3 rounded-xl border border-gray-700 bg-gray-800/60 hover:bg-gray-700 text-gray-200 text-sm font-medium transition-colors flex justify-center items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
-                &larr; 上一個
-            </button>
-            <button id="flipBtn" class="flex-1 py-3 px-3 rounded-xl border border-purple-500/40 bg-purple-900/30 hover:bg-purple-900/50 text-purple-200 text-sm font-medium transition-colors flex justify-center items-center gap-1.5">
-                翻轉 &#8635;
-            </button>
-            <button id="nextBtn" class="flex-1 py-3 px-3 rounded-xl border border-gray-700 bg-gray-800/60 hover:bg-gray-700 text-gray-200 text-sm font-medium transition-colors flex justify-center items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
-                下一個 &rarr;
-            </button>
-        </div>
-    </footer>
-
-    <!-- 通知 Toast 提示組件 -->
-    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-purple-900 text-white px-4 py-2 rounded-full text-xs font-medium shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 border border-purple-400/30 z-50">
-        提示訊息
-    </div>
-
-    <script>
-        let words = [];
-        let currentIndex = 0;
-        let isFlipped = false;
-
-        // DOM 元素
-        const flashcard = document.getElementById('flashcard');
-        const emptyState = document.getElementById('emptyState');
-        const jsonFileInput = document.getElementById('jsonFileInput');
-        const importBtn = document.getElementById('importBtn');
-        const uploadTriggerBtn = document.getElementById('uploadTriggerBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const toast = document.getElementById('toast');
-        const ttsBtn = document.getElementById('ttsBtn');
-
-        const cardFront = document.getElementById('cardFront');
-        const cardPhonetic = document.getElementById('cardPhonetic');
-        const cardId = document.getElementById('cardId');
-        const cardBack = document.getElementById('cardBack');
-        const cardPart = document.getElementById('cardPart');
-        const cardExample = document.getElementById('cardExample');
-
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const flipBtn = document.getElementById('flipBtn');
-        
-        const progressBar = document.getElementById('progressBar');
-        const modeText = document.getElementById('modeText');
-        const dataSourceBadge = document.getElementById('dataSourceBadge');
-
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.classList.remove('opacity-0');
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-            }, 2500);
-        }
-
-        // TTS 英文單字語音朗讀
-        function speakWord(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // 停止先前的聲音
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-            } else {
-                showToast('您的瀏覽器不支援語音朗讀');
-            }
-        }
-
-        // 主初始化流程
-        async function initApp() {
-            // 1. 嘗試從 LocalStorage 載入上次匯入的資料
-            const cachedData = localStorage.getItem('flashcard_words');
-            if (cachedData) {
-                try {
-                    words = JSON.parse(cachedData);
-                    if (words.length > 0) {
-                        dataSourceBadge.textContent = '快取記憶';
-                        startStudyMode();
-                        return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const json = JSON.parse(e.target.result);
+                        if (Array.isArray(json) && json.length > 0) {
+                            setWords(json);
+                            setCurrentIndex(0);
+                            setIsFlipped(false);
+                            setStats({ familiar: 0, needReview: 0 });
+                            if (json[0].group) setCurrentGroup(json[0].group);
+                        } else {
+                            alert("JSON 格式不正確或為空！請確保是一個包含單字物件的陣列。");
+                        }
+                    } catch (err) {
+                        alert("解析 JSON 失敗，請確認檔案格式是否正確。");
                     }
-                } catch(e) {
-                    localStorage.removeItem('flashcard_words');
-                }
-            }
+                };
+                reader.readAsText(file);
+                // 重置 input，允許重複上傳同一個檔案
+                event.target.value = '';
+            };
 
-            // 2. 嘗試自動從相對路徑抓取 words.json
-            try {
-                const response = await fetch('./words.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                        words = data;
-                        localStorage.setItem('flashcard_words', JSON.stringify(words));
-                        dataSourceBadge.textContent = '自動: words.json';
-                        startStudyMode();
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.log('自動讀取 words.json 失敗 (通常為 file:// 協定限制，屬正常現象)');
-            }
-
-            // 3. 若無資料，顯示引導畫面
-            showEmptyState();
-        }
-
-        function showEmptyState() {
-            emptyState.classList.remove('hidden');
-            dataSourceBadge.textContent = '無資料';
-            modeText.textContent = '等待匯入 JSON 檔';
-            progressBar.style.width = '0%';
-        }
-
-        function startStudyMode() {
-            emptyState.classList.add('hidden');
-            currentIndex = 0;
-            isFlipped = false;
-            updateCard();
-            updateUI();
-            showToast(`成功載入 ${words.length} 個單字！`);
-        }
-
-        function updateCard() {
-            if (words.length === 0) return;
-
-            const wordData = words[currentIndex];
-
-            if (isFlipped) {
-                flashcard.classList.remove('rotate-y-180');
-                isFlipped = false;
-                setTimeout(() => fillCardData(wordData), 150);
-            } else {
-                fillCardData(wordData);
-            }
-        }
-
-        function fillCardData(wordData) {
-            cardFront.textContent = wordData.word || "Unknown";
-            cardPhonetic.textContent = wordData.phonetic || "";
-            cardId.textContent = wordData.id || (currentIndex + 1);
-
-            cardBack.textContent = wordData.translation || "無翻譯";
-            cardPart.textContent = wordData.partOfSpeech || "詞性";
-            cardExample.textContent = wordData.example || "無例句";
-        }
-
-        function updateUI() {
-            if (words.length === 0) return;
-
-            const progress = ((currentIndex + 1) / words.length) * 100;
-            progressBar.style.width = `${progress}%`;
-            modeText.textContent = `第 ${currentIndex + 1} / ${words.length} 張`;
-
-            prevBtn.disabled = currentIndex === 0;
-            nextBtn.disabled = currentIndex === words.length - 1;
-        }
-
-        function toggleFlip() {
-            if (words.length === 0) return;
-            isFlipped = !isFlipped;
-            if (isFlipped) {
-                flashcard.classList.add('rotate-y-180');
-            } else {
-                flashcard.classList.remove('rotate-y-180');
-            }
-        }
-
-        function handleFileSelect(file) {
-            if (!file || !file.name.endsWith('.json')) {
-                showToast('請上傳有效的 .json 檔案！');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        words = parsed;
-                        localStorage.setItem('flashcard_words', JSON.stringify(words));
-                        dataSourceBadge.textContent = '手動匯入';
-                        startStudyMode();
-                    } else {
-                        showToast('JSON 格式不正確，需為單字物件陣列！');
-                    }
-                } catch (err) {
-                    showToast('解析 JSON 檔案失敗！');
+            const handleNext = () => {
+                if (currentIndex < words.length - 1) {
+                    setIsFlipped(false);
+                    // 使用 setTimeout 確保翻轉動畫重置後再切換內容
+                    setTimeout(() => setCurrentIndex(prev => prev + 1), 150);
                 }
             };
-            reader.readAsText(file);
+
+            const handlePrev = () => {
+                if (currentIndex > 0) {
+                    setIsFlipped(false);
+                    setTimeout(() => setCurrentIndex(prev => prev - 1), 150);
+                }
+            };
+
+            const toggleFlip = () => {
+                setIsFlipped(!isFlipped);
+            };
+
+            const resetApp = () => {
+                setCurrentIndex(0);
+                setIsFlipped(false);
+                setStats({ familiar: 0, needReview: 0 });
+            };
+
+            if (isLoading) {
+                return <div className="min-h-screen flex items-center justify-center text-white">載入中...</div>;
+            }
+
+            if (words.length === 0) {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center text-white p-4">
+                        <p className="mb-4">沒有找到單字資料</p>
+                        <button onClick={() => fileInputRef.current.click()} className="px-4 py-2 bg-gray-800 rounded-lg border border-gray-600">
+                            上傳 JSON 檔案
+                        </button>
+                        <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileUpload} />
+                    </div>
+                );
+            }
+
+            const currentWord = words[currentIndex];
+            const progressPercentage = ((currentIndex + 1) / words.length) * 100;
+
+            return (
+                <div className="min-h-screen flex flex-col max-w-md mx-auto p-4 sm:p-6 pb-8">
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <span className="bg-indigo-900/50 text-indigo-300 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-800/50">
+                                {currentGroup}
+                            </span>
+                            <h1 className="text-white font-bold text-lg">單字記憶卡片</h1>
+                        </div>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={() => fileInputRef.current.click()} 
+                                className="px-3 py-1.5 bg-[#1a1a1c] border border-gray-700 rounded-full text-xs text-gray-300 flex items-center gap-1 active:bg-gray-800 transition-colors"
+                            >
+                                ↑ JSON
+                            </button>
+                            <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileUpload} />
+                            
+                            <button 
+                                onClick={resetApp}
+                                className="px-3 py-1.5 bg-[#1a1a1c] border border-gray-700 rounded-full text-xs text-gray-300 flex items-center gap-1 active:bg-gray-800 transition-colors"
+                            >
+                                ↺ 重置
+                            </button>
+                        </div>
+                    </div>
+
+                    {}
+                    <div className="bg-[#1c1c1e] rounded-2xl p-4 mb-6 border border-[#2c2c2e]">
+                        {/* Progress Bar */}
+                        <div className="h-1.5 w-full bg-gray-800 rounded-full mb-3 overflow-hidden">
+                            <div 
+                                className="h-full bg-indigo-500 transition-all duration-300 ease-out" 
+                                style={{ width: `${progressPercentage}%` }}
+                            ></div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center text-xs text-gray-400">
+                            <span>無盡模式 (第 {currentIndex + 1} 張)</span>
+                            <span>熟練: {stats.familiar} | 待加強: {stats.needReview}</span>
+                        </div>
+                    </div>
+
+                    {}
+                    {/* CRITICAL FIX: 給予外層容器明確的 min-height (如 h-80/min-h-[320px])，防止絕對定位的子元素導致高度塌陷 */}
+                    <div 
+                        className="relative w-full h-80 sm:h-96 perspective-1000 cursor-pointer mb-8 group"
+                        onClick={toggleFlip}
+                    >
+                        <div className={`w-full h-full duration-500 transform-style-3d relative transition-transform ${isFlipped ? 'rotate-y-180' : ''}`}>
+                            
+                            {/* Card Front */}
+                            <div className="absolute inset-0 w-full h-full backface-hidden bg-[#1c1c1e] rounded-2xl p-6 border border-[#2c2c2e] shadow-lg flex flex-col justify-center">
+                                <div className="absolute top-4 right-5 text-gray-500 text-sm font-mono">
+                                    ID: {currentWord.id || "N/A"}
+                                </div>
+                                
+                                <div className="flex flex-col items-center justify-center text-center mt-4">
+                                    <h2 className="text-5xl font-bold text-white tracking-wide mb-3">{currentWord.word}</h2>
+                                    {currentWord.part_of_speech && (
+                                        <span className="text-indigo-400 text-lg italic">{currentWord.part_of_speech}</span>
+                                    )}
+                                </div>
+                                
+                                <div className="absolute bottom-4 left-0 w-full text-center text-gray-500 text-xs">
+                                    點擊翻轉查看解釋
+                                </div>
+                            </div>
+
+                            {/* Card Back */}
+                            <div className="absolute inset-0 w-full h-full backface-hidden bg-[#242427] rounded-2xl p-6 border border-indigo-900/30 shadow-lg flex flex-col justify-center rotate-y-180">
+                                <div className="flex flex-col items-center justify-center text-center">
+                                    <h3 className="text-3xl text-white font-medium mb-4 leading-relaxed">
+                                        {currentWord.meaning}
+                                    </h3>
+                                    
+                                    {/* 提供自我評估的按鈕，點擊時不觸發卡片翻轉 (e.stopPropagation) */}
+                                    <div className="flex gap-4 mt-6">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setStats(s => ({...s, needReview: s.needReview + 1}));
+                                                handleNext();
+                                            }}
+                                            className="px-5 py-2 rounded-xl bg-red-900/30 text-red-400 border border-red-900/50 hover:bg-red-900/50 transition-colors"
+                                        >
+                                            待加強
+                                        </button>
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setStats(s => ({...s, familiar: s.familiar + 1}));
+                                                handleNext();
+                                            }}
+                                            className="px-5 py-2 rounded-xl bg-green-900/30 text-green-400 border border-green-900/50 hover:bg-green-900/50 transition-colors"
+                                        >
+                                            熟練
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {}
+                    {/* Controls */}
+                    <div className="flex justify-between items-center gap-3 mb-6">
+                        <button 
+                            onClick={handlePrev}
+                            disabled={currentIndex === 0}
+                            className={`flex-1 py-3.5 rounded-2xl border border-[#2c2c2e] text-sm font-medium transition-colors ${currentIndex === 0 ? 'bg-[#121212] text-gray-600' : 'bg-[#1c1c1e] text-gray-300 active:bg-gray-800'}`}
+                        >
+                            ← 上一個
+                        </button>
+                        
+                        <button 
+                            onClick={toggleFlip}
+                            className="flex-1 py-3.5 rounded-2xl border border-[#2c2c2e] bg-[#2c2c30] text-sm font-medium text-white active:bg-gray-700 transition-colors"
+                        >
+                            翻轉卡片 ↻
+                        </button>
+                        
+                        <button 
+                            onClick={handleNext}
+                            disabled={currentIndex === words.length - 1}
+                            className={`flex-1 py-3.5 rounded-2xl border border-[#2c2c2e] text-sm font-medium transition-colors ${currentIndex === words.length - 1 ? 'bg-[#121212] text-gray-600' : 'bg-[#1c1c1e] text-gray-300 active:bg-gray-800'}`}
+                        >
+                            下一個 →
+                        </button>
+                    </div>
+
+                    {/* Exit Button */}
+                    <button className="w-full py-4 rounded-2xl border border-[#2c2c2e] bg-[#121212] text-gray-400 text-sm font-medium hover:text-white hover:bg-[#1c1c1e] transition-colors mt-auto">
+                        退出學習
+                    </button>
+
+                </div>
+            );
         }
 
-        // 綁定檔案上傳事件
-        importBtn.addEventListener('click', () => jsonFileInput.click());
-        uploadTriggerBtn.addEventListener('click', () => jsonFileInput.click());
-
-        jsonFileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelect(e.target.files[0]);
-            }
-        });
-
-        // 拖曳上傳支援 (Drag & Drop)
-        window.addEventListener('dragover', (e) => e.preventDefault());
-        window.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (e.dataTransfer.files.length > 0) {
-                handleFileSelect(e.dataTransfer.files[0]);
-            }
-        });
-
-        flashcard.addEventListener('click', (e) => {
-            // 防止點擊發音按鈕時翻轉卡片
-            if (ttsBtn.contains(e.target)) return;
-            toggleFlip();
-        });
-
-        ttsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (words.length > 0) {
-                speakWord(words[currentIndex].word);
-            }
-        });
-
-        flipBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleFlip();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentIndex < words.length - 1) {
-                currentIndex++;
-                updateCard();
-                updateUI();
-            }
-        });
-
-        prevBtn.addEventListener('click', () => {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCard();
-                updateUI();
-            }
-        });
-
-        resetBtn.addEventListener('click', () => {
-            localStorage.removeItem('flashcard_words');
-            words = [];
-            showEmptyState();
-            showToast('已清除快取，請重新載入 JSON');
-            initApp();
-        });
-
-        // 鍵盤方向鍵與空白鍵操作
-        document.addEventListener('keydown', (e) => {
-            if (words.length === 0) return;
-            if (e.key === 'ArrowRight') nextBtn.click();
-            if (e.key === 'ArrowLeft') prevBtn.click();
-            if (e.key === ' ' || e.key === 'Spacebar') {
-                e.preventDefault();
-                toggleFlip();
-            }
-        });
-
-        // 啟動應用程式
-        initApp();
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<FlashcardApp />);
     </script>
 </body>
 </html>
