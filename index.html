@@ -615,9 +615,14 @@ useEffect(() => {
                                     <span className="text-xs text-gray-400 font-medium shrink-0">組別：</span>
                                     <select 
                                         value={selectedBankGroup}
-                                        onChange={(e) => {
-                                            setSelectedBankGroup(e.target.value);
+                                        onChange={async (e) => {
+                                            const value = e.target.value;
+                                            setSelectedBankGroup(value);
                                             setCurrentIndex(0);
+                                            if (value !== 'ALL') {
+                                                const groupNumber = Number(value.replace('Group ', ''));
+                                                await loadGroup(groupNumber);
+                                            }
                                         }}
                                         className="bg-gray-900 border border-gray-700 text-indigo-300 text-xs rounded-lg px-2.5 py-1.5 font-semibold focus:outline-none focus:border-indigo-500"
                                     >
