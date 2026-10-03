@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>單字記憶卡片 (Vocab App)</title>
+    <title>單字記憶卡片 App</title>
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -17,12 +17,12 @@
 
     <style>
         body {
-            background-color: #0f0f11; /* 非常深的深灰色背景，符合截圖風格 */
-            color: #ffffff;
+            background-color: #0b0f19;
+            color: #f3f4f6;
             -webkit-tap-highlight-color: transparent;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        /* 3D 翻轉卡片必備的自定義 CSS */
         .perspective-1000 {
             perspective: 1000px;
         }
@@ -33,14 +33,13 @@
         
         .backface-hidden {
             backface-visibility: hidden;
-            -webkit-backface-visibility: hidden; /* Safari 支援 */
+            -webkit-backface-visibility: hidden;
         }
         
         .rotate-y-180 {
             transform: rotateY(180deg);
         }
 
-        /* 隱藏原生檔案上傳按鈕 */
         input[type="file"] {
             display: none;
         }
@@ -52,49 +51,145 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
+        const DEFAULT_WORDS = [
+            {
+                id: 4151,
+                en: "sore",
+                pos: "adj.",
+                zh: "疼痛的",
+                ex: "Poor girl! It must be extreme sore. Be brave!<br>可憐的女孩，一定很痛吧。勇敢一點喔。",
+                root: "古英語 sār（受傷痛楚）",
+                mem: "諧音「瘦兒」：太過瘦弱的孩子跌倒容易感到疼痛。"
+            },
+            {
+                id: 4152,
+                en: "sorrow",
+                pos: "n./v.",
+                zh: "悲傷",
+                ex: "I don't know how to throw away my sorrow; maybe I just keep thinking too much.<br>我不知道如何拋棄我的煩惱，或許我只是想太多。",
+                root: "原始日耳曼語 sorgō（憂慮受創）",
+                mem: "sor (sore 痛) + row (划船)：獨自在寒風中划船，心中充滿悲傷。"
+            },
+            {
+                id: 4153,
+                en: "sorrowful",
+                pos: "adj.",
+                zh: "悲傷的",
+                ex: "Nobody can understand my sorrowful feeling.<br>沒人能了解我的悲傷的心情。",
+                root: "sorrow (悲傷) + -ful (充滿…的)",
+                mem: "心中充滿了 sorrow（悲傷），神情自然很悲傷的。"
+            }
+        ];
+
         function FlashcardApp() {
-            // 狀態管理
             const [words, setWords] = useState([]);
             const [currentIndex, setCurrentIndex] = useState(0);
             const [isFlipped, setIsFlipped] = useState(false);
             const [stats, setStats] = useState({ familiar: 0, needReview: 0 });
             const [isLoading, setIsLoading] = useState(true);
-            const [currentGroup, setCurrentGroup] = useState("Group 84"); // 預設群組名
+            const [currentGroup, setCurrentGroup] = useState("Group 84");
+            const [notice, setNotice] = useState(null);
 
-            // 處理檔案上傳的 ref
             const fileInputRef = useRef(null);
 
+            const parseHtmlToWords = (htmlText) => {
+                try {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, "text/html");
+                    
+                    // 1. 優先讀取 <script id="vocab-data" type="application/json">
+                    const jsonScript = doc.getElementById("vocab-data");
+                    if (jsonScript) {
+                        const parsed = JSON.parse(jsonScript.textContent);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+
+                    // 2. 備用方案：解析帶有 data 屬性的 HTML 元素
+                    const items = doc.querySelectorAll(".word-item, [data-en], [data-word]");
+                    if (items.length > 0) {
+                        const parsed = [];
+                        items.forEach((el, index) => {
+                            parsed.push({
+                                id: el.dataset.id || (index + 1),
+                                en: el.dataset.en || el.dataset.word || el.querySelector('.word, .en')?.textContent?.trim() || '',
+                                pos: el.dataset.pos || el.querySelector('.pos')?.textContent?.trim() || '',
+                                zh: el.dataset.zh || el.dataset.meaning || el.querySelector('.meaning, .zh')?.textContent?.trim() || '',
+                                ex: el.dataset.ex || el.querySelector('.ex')?.innerHTML?.trim() || '',
+                                root: el.dataset.root || el.querySelector('.root')?.textContent?.trim() || '',
+                                mem: el.dataset.mem || el.querySelector('.mem')?.textContent?.trim() || ''
+                            });
+                        });
+                        return parsed.filter(w => w.en);
+                    }
+                } catch (e) {
+                    console.error("解析 HTML 單字檔失敗:", e);
+                }
+                return null;
+            };
+
             useEffect(() => {
-                // 嘗試自動載入同目錄下的 文字.json (對應 GitHub Pages 的設定)
-                fetch('./文字.json')
-                    .then(res => {
-                        if (!res.ok) throw new Error("找不到檔案");
-                        return res.json();
-                    })
-                    .then(data => {
-                        if (Array.isArray(data) && data.length > 0) {
-                            setWords(data);
-                            // 嘗試從第一筆資料中提取群組名稱
-                            if (data[0].group) setCurrentGroup(data[0].group);
-                        } else {
-                            loadMockData(); // 如果檔案是空的，載入預設資料
+                const loadVocabData = async () => {
+                    setIsLoading(true);
+                    let loadedData = null;
+
+                    const filesToTry = ['./words.html', './words.json'];
+
+                    for (const path of filesToTry) {
+                        try {
+                            const res = await fetch(path);
+                            if (res.ok) {
+                                const text = await res.text();
+                                if (path.endsWith('.html') || text.includes('<html') || text.includes('vocab-data')) {
+                                    loadedData = parseHtmlToWords(text);
+                                } else {
+                                    loadedData = JSON.parse(text);
+                                }
+                                if (loadedData && loadedData.length > 0) {
+                                    setNotice(`成功自動載入單字檔：${path}`);
+                                    break;
+                                }
+                            }
+                        } catch (e) {
+                            // 當本地 file:// 協議禁止 fetch 時，靜默切換至備用預設單字
                         }
-                    })
-                    .catch(err => {
-                        console.warn("無法自動載入 文字.json，使用預設單字庫:", err);
-                        loadMockData();
-                    })
-                    .finally(() => {
-                        setIsLoading(false);
-                    });
+                    }
+
+                    if (loadedData && Array.isArray(loadedData) && loadedData.length > 0) {
+                        setWords(loadedData);
+                    } else {
+                        setWords(DEFAULT_WORDS);
+                        setNotice("已載入預設單字卡 (3 個單字)。若要替換，請點選上方「📂 上傳檔」選擇 words.html。");
+                    }
+                    setIsLoading(false);
+                };
+
+                loadVocabData();
             }, []);
 
-            const loadMockData = () => {
-                setWords([
-                    { id: 4162, word: "sow", part_of_speech: "v.", meaning: "播種；散佈", group: "Group 84" },
-                    { id: 4163, word: "reap", part_of_speech: "v.", meaning: "收割；獲得", group: "Group 84" },
-                    { id: 4164, word: "cultivate", part_of_speech: "v.", meaning: "耕作；培養", group: "Group 84" }
-                ]);
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.key === 'ArrowLeft') {
+                        handlePrev();
+                    } else if (e.key === 'ArrowRight') {
+                        handleNext();
+                    } else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        toggleFlip();
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [currentIndex, isFlipped, words]);
+
+            const speakWord = (text) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                }
             };
 
             const handleFileUpload = (event) => {
@@ -103,77 +198,90 @@
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    try {
-                        const json = JSON.parse(e.target.result);
-                        if (Array.isArray(json) && json.length > 0) {
-                            setWords(json);
-                            setCurrentIndex(0);
-                            setIsFlipped(false);
-                            setStats({ familiar: 0, needReview: 0 });
-                            if (json[0].group) setCurrentGroup(json[0].group);
-                        } else {
-                            alert("JSON 格式不正確或為空！請確保是一個包含單字物件的陣列。");
+                    const content = e.target.result;
+                    let parsedData = null;
+
+                    if (file.name.endsWith('.html') || file.name.endsWith('.htm') || content.includes('<html') || content.includes('vocab-data')) {
+                        parsedData = parseHtmlToWords(content);
+                    } else {
+                        try {
+                            parsedData = JSON.parse(content);
+                        } catch (err) {
+                            setNotice("❌ 檔案內容格式錯誤，請上傳 words.html 或合法 JSON 檔案。");
+                            return;
                         }
-                    } catch (err) {
-                        alert("解析 JSON 失敗，請確認檔案格式是否正確。");
+                    }
+
+                    if (Array.isArray(parsedData) && parsedData.length > 0) {
+                        setWords(parsedData);
+                        setCurrentIndex(0);
+                        setIsFlipped(false);
+                        setStats({ familiar: 0, needReview: 0 });
+                        setNotice(`✅ 成功載入「${file.name}」，共 ${parsedData.length} 個單字！`);
+                    } else {
+                        setNotice("❌ 檔案中未發現有效的單字資料。");
                     }
                 };
                 reader.readAsText(file);
-                // 重置 input，允許重複上傳同一個檔案
                 event.target.value = '';
             };
 
             const handleNext = () => {
                 if (currentIndex < words.length - 1) {
                     setIsFlipped(false);
-                    // 使用 setTimeout 確保翻轉動畫重置後再切換內容
-                    setTimeout(() => setCurrentIndex(prev => prev + 1), 150);
+                    setTimeout(() => setCurrentIndex(prev => prev + 1), 120);
                 }
             };
 
             const handlePrev = () => {
                 if (currentIndex > 0) {
                     setIsFlipped(false);
-                    setTimeout(() => setCurrentIndex(prev => prev - 1), 150);
+                    setTimeout(() => setCurrentIndex(prev => prev - 1), 120);
                 }
             };
 
             const toggleFlip = () => {
-                setIsFlipped(!isFlipped);
+                setIsFlipped(prev => !prev);
             };
 
             const resetApp = () => {
                 setCurrentIndex(0);
                 setIsFlipped(false);
                 setStats({ familiar: 0, needReview: 0 });
+                setNotice("已重置學習進度。");
             };
 
             if (isLoading) {
-                return <div className="min-h-screen flex items-center justify-center text-white">載入中...</div>;
-            }
-
-            if (words.length === 0) {
                 return (
-                    <div className="min-h-screen flex flex-col items-center justify-center text-white p-4">
-                        <p className="mb-4">沒有找到單字資料</p>
-                        <button onClick={() => fileInputRef.current.click()} className="px-4 py-2 bg-gray-800 rounded-lg border border-gray-600">
-                            上傳 JSON 檔案
-                        </button>
-                        <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileUpload} />
+                    <div className="min-h-screen flex flex-col items-center justify-center text-white">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500 mb-4"></div>
+                        <p className="text-gray-400 text-sm">正在初始化單字庫...</p>
                     </div>
                 );
             }
 
-            const currentWord = words[currentIndex];
-            const progressPercentage = ((currentIndex + 1) / words.length) * 100;
+            const currentWord = words[currentIndex] || {};
+            const progressPercentage = words.length > 0 ? ((currentIndex + 1) / words.length) * 100 : 0;
+
+            const renderExample = (exText) => {
+                if (!exText) return null;
+                const parts = exText.split('<br>');
+                return (
+                    <div className="text-left bg-gray-900/80 p-3 rounded-xl border border-gray-800 text-sm">
+                        <div className="text-xs text-indigo-400 font-semibold mb-1">例句 Example:</div>
+                        <div className="text-gray-200 font-medium">{parts[0]}</div>
+                        {parts[1] && <div className="text-gray-400 text-xs mt-1 border-t border-gray-800 pt-1">{parts[1]}</div>}
+                    </div>
+                );
+            };
 
             return (
-                <div className="min-h-screen flex flex-col max-w-md mx-auto p-4 sm:p-6 pb-8">
+                <div className="min-h-screen flex flex-col max-w-lg mx-auto p-4 sm:p-6 pb-12">
                     
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <span className="bg-indigo-900/50 text-indigo-300 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-800/50">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <span className="bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-700/50">
                                 {currentGroup}
                             </span>
                             <h1 className="text-white font-bold text-lg">單字記憶卡片</h1>
@@ -181,113 +289,155 @@
                         <div className="flex gap-2">
                             <button 
                                 onClick={() => fileInputRef.current.click()} 
-                                className="px-3 py-1.5 bg-[#1a1a1c] border border-gray-700 rounded-full text-xs text-gray-300 flex items-center gap-1 active:bg-gray-800 transition-colors"
+                                className="px-3 py-1.5 bg-[#1e2330] hover:bg-gray-800 border border-gray-700 rounded-full text-xs text-gray-200 flex items-center gap-1 active:scale-95 transition-all shadow"
                             >
-                                ↑ JSON
+                                📂 上傳檔 (HTML/JSON)
                             </button>
-                            <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileUpload} />
+                            <input type="file" accept=".json,.html,.htm" ref={fileInputRef} onChange={handleFileUpload} />
                             
                             <button 
                                 onClick={resetApp}
-                                className="px-3 py-1.5 bg-[#1a1a1c] border border-gray-700 rounded-full text-xs text-gray-300 flex items-center gap-1 active:bg-gray-800 transition-colors"
+                                className="px-3 py-1.5 bg-[#1e2330] hover:bg-gray-800 border border-gray-700 rounded-full text-xs text-gray-300 flex items-center gap-1 active:scale-95 transition-all shadow"
+                                title="重置進度"
                             >
                                 ↺ 重置
                             </button>
                         </div>
                     </div>
 
-                    {}
-                    <div className="bg-[#1c1c1e] rounded-2xl p-4 mb-6 border border-[#2c2c2e]">
-                        {/* Progress Bar */}
-                        <div className="h-1.5 w-full bg-gray-800 rounded-full mb-3 overflow-hidden">
+                    {/* Notice Banner */}
+                    {notice && (
+                        <div className="mb-4 p-3 bg-indigo-950/70 border border-indigo-800/80 rounded-xl text-indigo-200 text-xs flex justify-between items-center shadow">
+                            <span>{notice}</span>
+                            <button onClick={() => setNotice(null)} className="text-indigo-400 font-bold ml-2 hover:text-white">✕</button>
+                        </div>
+                    )}
+
+                    {/* Stats & Progress */}
+                    <div className="bg-[#131825] rounded-2xl p-4 mb-6 border border-gray-800 shadow-md">
+                        <div className="h-2 w-full bg-gray-800 rounded-full mb-3 overflow-hidden">
                             <div 
-                                className="h-full bg-indigo-500 transition-all duration-300 ease-out" 
+                                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 ease-out" 
                                 style={{ width: `${progressPercentage}%` }}
                             ></div>
                         </div>
                         
-                        <div className="flex justify-between items-center text-xs text-gray-400">
-                            <span>無盡模式 (第 {currentIndex + 1} 張)</span>
-                            <span>熟練: {stats.familiar} | 待加強: {stats.needReview}</span>
+                        <div className="flex justify-between items-center text-xs text-gray-400 font-medium">
+                            <span>進度 ({currentIndex + 1} / {words.length})</span>
+                            <div className="flex gap-3">
+                                <span>熟練: <strong className="text-emerald-400">{stats.familiar}</strong></span>
+                                <span>待加強: <strong className="text-rose-400">{stats.needReview}</strong></span>
+                            </div>
                         </div>
                     </div>
 
-                    {}
-                    {/* CRITICAL FIX: 給予外層容器明確的 min-height (如 h-80/min-h-[320px])，防止絕對定位的子元素導致高度塌陷 */}
+                    {/* Flip Card Container */}
                     <div 
-                        className="relative w-full h-80 sm:h-96 perspective-1000 cursor-pointer mb-8 group"
+                        className="relative w-full h-96 perspective-1000 cursor-pointer mb-6 group"
                         onClick={toggleFlip}
                     >
                         <div className={`w-full h-full duration-500 transform-style-3d relative transition-transform ${isFlipped ? 'rotate-y-180' : ''}`}>
                             
                             {/* Card Front */}
-                            <div className="absolute inset-0 w-full h-full backface-hidden bg-[#1c1c1e] rounded-2xl p-6 border border-[#2c2c2e] shadow-lg flex flex-col justify-center">
-                                <div className="absolute top-4 right-5 text-gray-500 text-sm font-mono">
-                                    ID: {currentWord.id || "N/A"}
+                            <div className="absolute inset-0 w-full h-full backface-hidden bg-[#131825] rounded-2xl p-6 border border-gray-800 shadow-xl flex flex-col justify-between">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs text-gray-500 font-mono">#{currentWord.id || "N/A"}</span>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            speakWord(currentWord.en || currentWord.word);
+                                        }}
+                                        className="px-2.5 py-1 bg-indigo-900/40 hover:bg-indigo-900/70 text-indigo-300 rounded-lg text-xs flex items-center gap-1 border border-indigo-700/50 transition-colors"
+                                        title="發音 (Pronunciation)"
+                                    >
+                                        🔊 發音
+                                    </button>
                                 </div>
                                 
-                                <div className="flex flex-col items-center justify-center text-center mt-4">
-                                    <h2 className="text-5xl font-bold text-white tracking-wide mb-3">{currentWord.word}</h2>
-                                    {currentWord.part_of_speech && (
-                                        <span className="text-indigo-400 text-lg italic">{currentWord.part_of_speech}</span>
+                                <div className="flex flex-col items-center justify-center text-center my-auto">
+                                    <h2 className="text-5xl font-extrabold text-white tracking-wide mb-3">{currentWord.en || currentWord.word}</h2>
+                                    {currentWord.pos && (
+                                        <span className="text-indigo-400 text-lg italic font-medium">{currentWord.pos}</span>
                                     )}
                                 </div>
                                 
-                                <div className="absolute bottom-4 left-0 w-full text-center text-gray-500 text-xs">
-                                    點擊翻轉查看解釋
+                                <div className="text-center text-gray-500 text-xs flex items-center justify-center gap-1">
+                                    <span>💡 點擊卡片翻轉查看解釋</span>
                                 </div>
                             </div>
 
                             {/* Card Back */}
-                            <div className="absolute inset-0 w-full h-full backface-hidden bg-[#242427] rounded-2xl p-6 border border-indigo-900/30 shadow-lg flex flex-col justify-center rotate-y-180">
-                                <div className="flex flex-col items-center justify-center text-center">
-                                    <h3 className="text-3xl text-white font-medium mb-4 leading-relaxed">
-                                        {currentWord.meaning}
-                                    </h3>
-                                    
-                                    {/* 提供自我評估的按鈕，點擊時不觸發卡片翻轉 (e.stopPropagation) */}
-                                    <div className="flex gap-4 mt-6">
-                                        <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setStats(s => ({...s, needReview: s.needReview + 1}));
-                                                handleNext();
-                                            }}
-                                            className="px-5 py-2 rounded-xl bg-red-900/30 text-red-400 border border-red-900/50 hover:bg-red-900/50 transition-colors"
-                                        >
-                                            待加強
-                                        </button>
-                                        <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setStats(s => ({...s, familiar: s.familiar + 1}));
-                                                handleNext();
-                                            }}
-                                            className="px-5 py-2 rounded-xl bg-green-900/30 text-green-400 border border-green-900/50 hover:bg-green-900/50 transition-colors"
-                                        >
-                                            熟練
-                                        </button>
+                            <div className="absolute inset-0 w-full h-full backface-hidden bg-[#1a1f30] rounded-2xl p-6 border border-indigo-900/50 shadow-xl flex flex-col justify-between rotate-y-180 overflow-y-auto">
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <div className="text-2xl font-bold text-white">{currentWord.en || currentWord.word}</div>
+                                        <span className="text-xs text-indigo-400 italic font-mono">{currentWord.pos}</span>
                                     </div>
+                                    <div className="text-xl text-emerald-400 font-semibold mb-3 border-b border-gray-800 pb-2">
+                                        {currentWord.zh || currentWord.meaning}
+                                    </div>
+
+                                    {/* Example sentence */}
+                                    {renderExample(currentWord.ex)}
+
+                                    {/* Root and Mnemonic */}
+                                    <div className="mt-3 space-y-2 text-xs text-left">
+                                        {currentWord.root && (
+                                            <div className="bg-gray-900/60 p-2.5 rounded-lg border border-gray-800">
+                                                <span className="text-indigo-400 font-semibold">字根字源：</span>
+                                                <span className="text-gray-300">{currentWord.root}</span>
+                                            </div>
+                                        )}
+                                        {currentWord.mem && (
+                                            <div className="bg-amber-950/30 p-2.5 rounded-lg border border-amber-900/40">
+                                                <span className="text-amber-400 font-semibold">記憶聯想：</span>
+                                                <span className="text-amber-200">{currentWord.mem}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {/* Self-Assessment Buttons */}
+                                <div className="flex gap-3 mt-4 pt-2 border-t border-gray-800">
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStats(s => ({...s, needReview: s.needReview + 1}));
+                                            handleNext();
+                                        }}
+                                        className="flex-1 py-2.5 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/60 text-xs font-semibold transition-colors active:scale-95"
+                                    >
+                                        ❌ 待加強
+                                    </button>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStats(s => ({...s, familiar: s.familiar + 1}));
+                                            handleNext();
+                                        }}
+                                        className="flex-1 py-2.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-800/60 text-xs font-semibold transition-colors active:scale-95"
+                                    >
+                                        ✓ 熟練
+                                    </button>
                                 </div>
                             </div>
 
                         </div>
                     </div>
 
-                    {}
-                    {/* Controls */}
-                    <div className="flex justify-between items-center gap-3 mb-6">
+                    {/* Navigation Controls */}
+                    <div className="flex justify-between items-center gap-2 mb-4">
                         <button 
                             onClick={handlePrev}
                             disabled={currentIndex === 0}
-                            className={`flex-1 py-3.5 rounded-2xl border border-[#2c2c2e] text-sm font-medium transition-colors ${currentIndex === 0 ? 'bg-[#121212] text-gray-600' : 'bg-[#1c1c1e] text-gray-300 active:bg-gray-800'}`}
+                            className={`flex-1 py-3 rounded-xl border text-xs font-medium transition-all ${currentIndex === 0 ? 'bg-gray-900 text-gray-600 border-gray-800 cursor-not-allowed' : 'bg-[#131825] text-gray-200 border-gray-700 hover:bg-gray-800 active:scale-95'}`}
                         >
                             ← 上一個
                         </button>
                         
                         <button 
                             onClick={toggleFlip}
-                            className="flex-1 py-3.5 rounded-2xl border border-[#2c2c2e] bg-[#2c2c30] text-sm font-medium text-white active:bg-gray-700 transition-colors"
+                            className="flex-1 py-3 rounded-xl border border-indigo-700/60 bg-indigo-900/40 hover:bg-indigo-900/60 text-xs font-semibold text-indigo-200 transition-all active:scale-95"
                         >
                             翻轉卡片 ↻
                         </button>
@@ -295,16 +445,15 @@
                         <button 
                             onClick={handleNext}
                             disabled={currentIndex === words.length - 1}
-                            className={`flex-1 py-3.5 rounded-2xl border border-[#2c2c2e] text-sm font-medium transition-colors ${currentIndex === words.length - 1 ? 'bg-[#121212] text-gray-600' : 'bg-[#1c1c1e] text-gray-300 active:bg-gray-800'}`}
+                            className={`flex-1 py-3 rounded-xl border text-xs font-medium transition-all ${currentIndex === words.length - 1 ? 'bg-gray-900 text-gray-600 border-gray-800 cursor-not-allowed' : 'bg-[#131825] text-gray-200 border-gray-700 hover:bg-gray-800 active:scale-95'}`}
                         >
                             下一個 →
                         </button>
                     </div>
 
-                    {/* Exit Button */}
-                    <button className="w-full py-4 rounded-2xl border border-[#2c2c2e] bg-[#121212] text-gray-400 text-sm font-medium hover:text-white hover:bg-[#1c1c1e] transition-colors mt-auto">
-                        退出學習
-                    </button>
+                    <div className="text-center text-gray-600 text-[11px]">
+                        鍵盤快捷鍵：← 上一個 | → 下一個 | 空格鍵/上下鍵 翻轉
+                    </div>
 
                 </div>
             );
