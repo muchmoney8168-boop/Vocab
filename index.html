@@ -198,7 +198,38 @@ useEffect(() => {
 }, []);
 
             // 取得所有可用組別列表
-            const availableGroups = Array.from(new Set(words.map(w => w.group || "Group 84")));
+           const availableGroups = Array.from(
+    { length: 90 },
+    (_, i) => `Group ${i + 1}`
+);
+            const loadGroup = async (groupNumber) => {
+    try {
+        setIsLoading(true);
+
+        const fileName = `group${String(groupNumber).padStart(2, '0')}.json`;
+        const res = await fetch(`./words/${fileName}`);
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        const parsed = await res.json();
+
+        const loadedData = parsed.map(item => ({
+            ...item,
+            group: item.group || `Group ${groupNumber}`
+        }));
+
+        setWords(loadedData);
+        setNotice(`成功載入第 ${groupNumber} 組：${fileName}`);
+
+    } catch (e) {
+        console.error(`載入 Group ${groupNumber} 失敗：`, e);
+        setNotice(`無法載入第 ${groupNumber} 組`);
+    } finally {
+        setIsLoading(false);
+    }
+};
 
             // 單字庫模式過濾後的單字列表
             const bankFilteredWords = words.filter(word => {
