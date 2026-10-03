@@ -1,1 +1,20 @@
-
+[
+  {
+    "id": 1,
+    "en": "test",
+    "pos": "n.",
+    "zh": "測試",
+    "ex": "This is a test.<br>這是一項測試。",
+    "root": "test",
+    "mem": "test → 測試"
+  },
+  {
+    "id": 2,
+    "en": "example",
+    "pos": "n.",
+    "zh": "例子；範例",
+    "ex": "This is an example.<br>這是一個例子。",
+    "root": "example",
+    "mem": "example → 例子"
+  }
+]
