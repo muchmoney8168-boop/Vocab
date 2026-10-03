@@ -217,7 +217,7 @@ useEffect(() => {
 
         const loadedData = parsed.map(item => ({
             ...item,
-            group: item.group || `Group ${groupNumber}`
+            group: `Group ${groupNumber}`
         }));
 
         setWords(loadedData);
