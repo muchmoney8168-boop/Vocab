@@ -1,1 +1,20 @@
-
+[
+  {
+    "id": 51,
+    "en": "hello",
+    "pos": "int.",
+    "zh": "你好",
+    "ex": "Hello!<br>你好！",
+    "root": "測試字根",
+    "mem": "測試記憶法"
+  },
+  {
+    "id": 52,
+    "en": "world",
+    "pos": "n.",
+    "zh": "世界",
+    "ex": "The world is beautiful.<br>世界很美麗。",
+    "root": "測試字根",
+    "mem": "測試記憶法"
+  }
+]
