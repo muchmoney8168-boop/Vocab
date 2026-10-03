@@ -2,441 +2,56 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>單字庫資料 - Group 84</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-950 text-gray-100 min-h-screen p-6 font-sans">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>單字記憶卡片 App</title>
     
-    <div class="max-w-3xl mx-auto">
-        <header class="mb-8 border-b border-gray-800 pb-4 flex justify-between items-center">
-            <div>
-                <span class="text-xs bg-indigo-900/60 text-indigo-300 font-semibold px-2.5 py-1 rounded-full border border-indigo-700">Group 84</span>
-                <h1 class="text-2xl font-bold text-white mt-2">單字庫資料檔案 (words.html)</h1>
-                <p class="text-sm text-gray-400 mt-1">共 18 個單字，此檔案可獨立開啟瀏覽，亦可直接載入或上傳至主程式 (index.html) 使用。</p>
-            </div>
-        </header>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-        <div class="space-y-4" id="vocab-container">
-            
-            <!-- Word Item 4151 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4151" data-en="sore" data-pos="adj." data-zh="疼痛的"
-                 data-ex="Poor girl! It must be extreme sore. Be brave!<br>可憐的女孩，一定很痛吧。勇敢一點喔。"
-                 data-root="古英語 sār（受傷痛楚）" data-mem="諧音「瘦兒」：太過瘦弱的孩子跌倒容易感到疼痛。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sore</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">adj.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4151</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">疼痛的</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Poor girl! It must be extreme sore. Be brave!<br>可憐的女孩，一定很痛吧。勇敢一點喔。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>古英語 sār（受傷痛楚）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>諧音「瘦兒」：太過瘦弱的孩子跌倒容易感到疼痛。</div>
-                </div>
-            </div>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
 
-            <!-- Word Item 4152 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4152" data-en="sorrow" data-pos="n./v." data-zh="悲傷"
-                 data-ex="I don't know how to throw away my sorrow; maybe I just keep thinking too much.<br>我不知道如何拋棄我的煩惱，或許我只是想太多。"
-                 data-root="原始日耳曼語 sorgō（憂慮受創）" data-mem="sor (sore 痛) + row (划船)：獨自在寒風中划船，心中充滿悲傷。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sorrow</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n./v.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4152</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">悲傷</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    I don't know how to throw away my sorrow; maybe I just keep thinking too much.<br>我不知道如何拋棄我的煩惱，或許我只是想太多。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>原始日耳曼語 sorgō（憂慮受創）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>sor (sore 痛) + row (划船)：獨自在寒風中划船，心中充滿悲傷。</div>
-                </div>
-            </div>
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
 
-            <!-- Word Item 4153 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4153" data-en="sorrowful" data-pos="adj." data-zh="悲傷的"
-                 data-ex="Nobody can understand my sorrowful feeling.<br>沒人能了解我的悲傷的心情。"
-                 data-root="sorrow (悲傷) + -ful (充滿…的)" data-mem="心中充滿了 sorrow（悲傷），神情自然很悲傷的。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sorrowful</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">adj.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4153</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">悲傷的</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Nobody can understand my sorrowful feeling.<br>沒人能了解我的悲傷的心情。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>sorrow (悲傷) + -ful (充滿…的)</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>心中充滿了 sorrow（悲傷），神情自然很悲傷的。</div>
-                </div>
-            </div>
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-            <!-- Word Item 4154 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4154" data-en="sort" data-pos="n./v." data-zh="種類 / 把…分類"
-                 data-ex="All sorts of the organic food are available in that supermarket.<br>所有種類的有機食物，都可在那家超市買到。"
-                 data-root="拉丁語 sors（類別、份額）" data-mem="諧音「排序」：將相同種類的東西進行排序與分類。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sort</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n./v.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4154</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">種類 / 把…分類</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    All sorts of the organic food are available in that supermarket.<br>所有種類的有機食物，都可在那家超市買到。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>拉丁語 sors（類別、份額）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>諧音「排序」：將相同種類的東西進行排序與分類。</div>
-                </div>
-            </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-            <!-- Word Item 4155 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4155" data-en="soul" data-pos="n." data-zh="靈魂"
-                 data-ex="Do you believe that the soul will come out after the people died?<br>你相信人死後，靈魂會出現？"
-                 data-root="古英語 sāwol（來自水域的神聖精神體）" data-mem="聯想 Soul music（靈魂樂）：震撼人心靈魂的音樂。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">soul</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4155</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">靈魂</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Do you believe that the soul will come out after the people died?<br>你相信人死後，靈魂會出現？
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>古英語 sāwol（來自水域的神聖精神體）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>聯想 Soul music（靈魂樂）：震撼人心靈魂的音樂。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4156 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4156" data-en="sour" data-pos="adj./v." data-zh="酸的；酸臭味的 / 使變酸"
-                 data-ex="The yogurt has soured in the hot weather.<br>在熱天氣當中，優格已經變酸了。"
-                 data-root="原始日耳曼語 sūraz（發酵變酸）" data-mem="諧音「騷」：牛奶變酸發臭後會散發一股酸臭味。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sour</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">adj./v.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4156</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">酸的；酸臭味的 / 使變酸</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    The yogurt has soured in the hot weather.<br>在熱天氣當中，優格已經變酸了。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>原始日耳曼語 sūraz（發酵變酸）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>諧音「騷」：牛奶變酸發臭後會散發一股酸臭味。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4157 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4157" data-en="source" data-pos="n." data-zh="根源；來源"
-                 data-ex="Can you tell me how to find the sources of this research?<br>你能告訴我如何找到這個研究報告的來源？"
-                 data-root="拉丁語 surgere（湧出、升起）" data-mem="水流湧出的源頭，就是萬物的來源與根源。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">source</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4157</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">根源；來源</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Can you tell me how to find the sources of this research?<br>你能告訴我如何找到這個研究報告的來源？
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>拉丁語 surgere（湧出、升起）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>水流湧出的源頭，就是萬物的來源與根源。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4158 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4158" data-en="sourness" data-pos="n." data-zh="酸味；不悅"
-                 data-ex="Don't you notice the sourness of the milk! Throw it to the garbage can.<br>你沒發現這個牛奶的酸味！把它丟到垃圾桶。"
-                 data-root="sour (酸的) + -ness (名詞字尾)" data-mem="sour（酸的）轉為名詞，代表食物的酸味或臉色不悅。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sourness</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4158</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">酸味；不悅</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Don't you notice the sourness of the milk! Throw it to the garbage can.<br>你沒發現這個牛奶的酸味！把它丟到垃圾桶。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>sour (酸的) + -ness (名詞字尾)</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>sour（酸的）轉為名詞，代表食物的酸味或臉色不悅。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4159 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4159" data-en="south" data-pos="n./adv./adj." data-zh="南方 / 往南地 / 南的"
-                 data-ex="Thailand and Cambodia are in the south of China.<br>泰國和柬埔寨在中國的南方。"
-                 data-root="與 sun（太陽）同源（陽光充沛之處）" data-mem="太陽 (Sun) 最刺眼明亮的方位就是南方。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">south</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n./adv./adj.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4159</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">南方 / 往南地 / 南的</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Thailand and Cambodia are in the south of China.<br>泰國和柬埔寨在中國的南方。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>與 sun（太陽）同源（陽光充沛之處）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>太陽 (Sun) 最刺眼明亮的方位就是南方。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4160 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4160" data-en="southern" data-pos="adj." data-zh="南方的"
-                 data-ex="My grandmother used to live in the southern part of a small town in Taiwan.<br>我的阿嬤以前住在台灣一個小鎮的南方地帶。"
-                 data-root="south + -ern (方向形容詞字尾)" data-mem="south 加上方向字尾，即為南方的。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">southern</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">adj.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4160</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">南方的</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    My grandmother used to live in the southern part of a small town in Taiwan.<br>我的阿嬤以前住在台灣一個小鎮的南方地帶。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>south + -ern (方向形容詞字尾)</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>south 加上方向字尾，即為南方的。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4161 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4161" data-en="souvenir" data-pos="n." data-zh="紀念品"
-                 data-ex="Did you buy any souvenirs as you were an exchange student in America?<br>當你在美國當交換學生時有沒有買任何紀念品？"
-                 data-root="法文 sub- (從底下) + venir (來到)" data-mem="讓旅行回憶重新來到心中的物件，就是紀念品。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">souvenir</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4161</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">紀念品</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Did you buy any souvenirs as you were an exchange student in America?<br>當你在美國當交換學生時有沒有買任何紀念品？
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>法文 sub- (從底下) + venir (來到)</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>讓旅行回憶重新來到心中的物件，就是紀念品。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4162 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4162" data-en="sow" data-pos="v." data-zh="播種"
-                 data-ex="My grandmother sowed the filed with seeds.<br>我的外婆在田裡播種。"
-                 data-root="古英語 sāwan（撒種）" data-mem="諧音「搜」：農夫邊搜尋合適土壤邊播種。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sow</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">v.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4162</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">播種</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    My grandmother sowed the filed with seeds.<br>我的外婆在田裡播種。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>古英語 sāwan（撒種）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>諧音「搜」：農夫邊搜尋合適土壤邊播種。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4163 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4163" data-en="spaceship" data-pos="n." data-zh="太空船"
-                 data-ex="I dreamed that I was a captain of a spaceship.<br>我夢到我是位在太空船上的船長。"
-                 data-root="space (太空) + ship (船)" data-mem="在廣袤 space 中航行的 ship，就是太空船。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">spaceship</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4163</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">太空船</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    I dreamed that I was a captain of a spaceship.<br>我夢到我是位在太空船上的船長。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>space (太空) + ship (船)</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>在廣袤 space 中航行的 ship，就是太空船。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4164 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4164" data-en="span" data-pos="n." data-zh="一段時間"
-                 data-ex="After a long span of ten years, she finally achieved her dream.<br>經過十年時間後，她終於達成夢想。"
-                 data-root="手掌張開大拇指到小指的跨度" data-mem="跨過手掌的一跨，引申為跨越了一段時間。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">span</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4164</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">一段時間</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    After a long span of ten years, she finally achieved her dream.<br>經過十年時間後，她終於達成夢想。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>手掌張開大拇指到小指的跨度</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>跨過手掌的一跨，引申為跨越了一段時間。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4165 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4165" data-en="spare" data-pos="v./adj." data-zh="給予 / 備用的"
-                 data-ex="Can you spare me a tire? Mine is damaged.<br>你能給我一個備胎嗎？我的輪胎壞了。"
-                 data-root="古英語 spær（節省留存的）" data-mem="spare tire（備胎）：將多餘留存的東西給予急需的人。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">spare</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">v./adj.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4165</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">給予 / 備用的</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    Can you spare me a tire? Mine is damaged.<br>你能給我一個備胎嗎？我的輪胎壞了。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>古英語 spær（節省留存的）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>spare tire（備胎）：將多餘留存的東西給予急需的人。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4166 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4166" data-en="spark" data-pos="n." data-zh="火星；火花"
-                 data-ex="The fire of the forest often caused by a small cigarette spark.<br>森林的火災，通常因為一個香菸的花火引起。"
-                 data-root="擬聲詞（木柴爆裂之聲）" data-mem="在公園 (park) 的黑夜裡，香菸的火花 (spark) 很明顯。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">spark</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">n.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4166</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">火星；火花</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    The fire of the forest often caused by a small cigarette spark.<br>森林的火災，通常因為一個香菸的花火引起。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>擬聲詞（木柴爆裂之聲）</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>在公園 (park) 的黑夜裡，香菸的火花 (spark) 很明顯。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4167 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4167" data-en="sparkle" data-pos="v." data-zh="吐出火花；閃耀"
-                 data-ex="My sister, Anne got married yesterday. I saw her eyes sparkled with happiness.<br>我的姐姐，安妮，昨天結婚了。我看她的眼神閃耀著幸福。"
-                 data-root="spark + -le (連續反覆動作)" data-mem="火花 (spark) 連續不斷產生 (-le)，眼神燦爛閃耀。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sparkle</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">v.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4167</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">吐出火花；閃耀</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-300 mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold">例句 Example:</span>
-                    My sister, Anne got married yesterday. I saw her eyes sparkled with happiness.<br>我的姐姐，安妮，昨天結婚了。我看她的眼神閃耀著幸福。
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>spark + -le (連續反覆動作)</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>火花 (spark) 連續不斷產生 (-le)，眼神燦爛閃耀。</div>
-                </div>
-            </div>
-
-            <!-- Word Item 4168 -->
-            <div class="word-item bg-gray-900 p-5 rounded-xl border border-gray-800 shadow-md"
-                 data-id="4168" data-en="sparkling" data-pos="adj." data-zh="吐出火花的；閃亮"
-                 data-ex=""
-                 data-root="sparkle + -ing (形容詞字尾)" data-mem="sparkling water 就是氣泡水，像火花般閃亮發泡的。">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-indigo-400">sparkling</span>
-                        <span class="text-sm text-indigo-300 italic font-mono">adj.</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-mono">#4168</span>
-                </div>
-                <div class="text-lg font-medium text-gray-200 mb-3">吐出火花的；閃亮</div>
-                <div class="bg-gray-950/60 p-3 rounded-lg text-sm text-gray-400 italic mb-2 border border-gray-800/80">
-                    <span class="text-xs text-gray-500 block mb-1 font-semibold not-italic">例句 Example:</span>
-                    (暫無例句)
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-indigo-400 font-semibold">字根字源：</span>sparkle + -ing (形容詞字尾)</div>
-                    <div class="bg-gray-800/50 p-2 rounded border border-gray-800"><span class="text-amber-400 font-semibold">記憶聯想：</span>sparkling water 就是氣泡水，像火花般閃亮發泡的。</div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <script id="vocab-data" type="application/json">
+        const DEFAULT_WORDS = 
     [
       {
         "id": 4151,
