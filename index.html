@@ -157,43 +157,45 @@
             };
 
             // 自動載入單字檔
-            useEffect(() => {
-                const loadVocabData = async () => {
-                    setIsLoading(true);
-                    let loadedData = null;
-                    const filesToTry = ['./words.html', './words.json'];
+            
+                    // 自動載入單字檔
+useEffect(() => {
+    const loadVocabData = async () => {
+        setIsLoading(true);
 
-                    for (const path of filesToTry) {
-                        try {
-                            const res = await fetch(path);
-                            if (res.ok) {
-                                const text = await res.text();
-                                if (path.endsWith('.html') || text.includes('<html') || text.includes('vocab-data')) {
-                                    loadedData = parseHtmlToWords(text);
-                                } else {
-                                    const parsed = JSON.parse(text);
-                                    loadedData = parsed.map(item => ({ ...item, group: item.group || "Group 84" }));
-                                }
-                                if (loadedData && loadedData.length > 0) {
-                                    setNotice(`成功自動載入單字檔：${path}`);
-                                    break;
-                                }
-                            }
-                        } catch (e) {}
-                    }
+        try {
+            const res = await fetch('./words/group01.json');
 
-                    const finalWords = (loadedData && Array.isArray(loadedData) && loadedData.length > 0) ? loadedData : DEFAULT_WORDS;
-                    setWords(finalWords);
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
 
-                    // 初始化複習組別選單（預設全選）
-                    const groups = Array.from(new Set(finalWords.map(w => w.group || "Group 84")));
-                    setSelectedReviewGroups(groups);
+            const parsed = await res.json();
 
-                    setIsLoading(false);
-                };
+            const loadedData = parsed.map(item => ({
+                ...item,
+                group: item.group || "Group 1"
+            }));
 
-                loadVocabData();
-            }, []);
+            if (loadedData.length > 0) {
+                setWords(loadedData);
+                setNotice('成功自動載入單字檔：Group 1');
+            } else {
+                setWords(DEFAULT_WORDS);
+                setNotice('Group 1 沒有單字，使用預設資料');
+            }
+
+        } catch (e) {
+            console.error('載入 Group 1 失敗：', e);
+            setWords(DEFAULT_WORDS);
+            setNotice('無法載入 Group 1，使用預設資料');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    loadVocabData();
+}, []);
 
             // 取得所有可用組別列表
             const availableGroups = Array.from(new Set(words.map(w => w.group || "Group 84")));
