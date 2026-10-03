@@ -233,7 +233,18 @@
         "mem": "sparkling water 就是氣泡水，像火花般閃亮發泡的。",
         "group": "Group 84"
       }
-    ]
+    ]；
+           function FlashcardApp() {
+            const [words, setWords] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [isFlipped, setIsFlipped] = useState(false);
+            const [stats, setStats] = useState({ red: 0, yellow: 0, green: 0, blue: 0 });
+            const [starredWords, setStarredWords] = useState({}); // { [id]: { yellow: boolean, blue: boolean } }
+            const [cardMastery, setCardMastery] = useState({}); // { [id]: 'red' | 'yellow' | 'green' | 'blue' }
+            const [lastReviewedAt, setLastReviewedAt] = useState({}); // { [id]: timestamp }
+            const [isLoading, setIsLoading] = useState(true);
+            const [notice, setNotice] = useState(null);
+            const [showHelpModal, setShowHelpModal] = useState(false);
     </script>
 </body>
 </html>
