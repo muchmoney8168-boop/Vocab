@@ -215,17 +215,38 @@ useEffect(() => {
 
         const parsed = await res.json();
 
+        console.log("載入的 JSON：", parsed);
+        console.log("是不是陣列：", Array.isArray(parsed));
+
+        if (!Array.isArray(parsed)) {
+            throw new Error("JSON 最外層不是陣列");
+        }
+
         const loadedData = parsed.map(item => ({
             ...item,
             group: `Group ${groupNumber}`
         }));
 
+        console.log(`Group ${groupNumber} 載入 ${loadedData.length} 個單字`);
+
         setWords(loadedData);
-        setNotice(`成功載入第 ${groupNumber} 組：${fileName}`);
+        setCurrentIndex(0);
+        setIsFlipped(false);
+
+        setNotice(
+            `成功載入第 ${groupNumber} 組：${fileName}（${loadedData.length} 字）`
+        );
 
     } catch (e) {
         console.error(`載入 Group ${groupNumber} 失敗：`, e);
-        setNotice(`無法載入第 ${groupNumber} 組`);
+
+        setWords([]);
+        setCurrentIndex(0);
+        setIsFlipped(false);
+
+        setNotice(
+            `❌ 無法載入 Group ${groupNumber}：${e.message}`
+        );
     } finally {
         setIsLoading(false);
     }
