@@ -91,10 +91,15 @@
             const [stats, setStats] = useState({ red: 0, yellow: 0, green: 0, blue: 0 });
             const [starredWords, setStarredWords] = useState({}); // { [id]: { yellow: boolean, blue: boolean } }
             const [cardMastery, setCardMastery] = useState({}); // { [id]: 'red' | 'yellow' | 'green' | 'blue' }
+            const [cardHistory, setCardHistory] = useState({}); // { [id]: Array<'red'|'yellow'|'green'|'blue'> }
             const [lastReviewedAt, setLastReviewedAt] = useState({}); // { [id]: timestamp }
+            const [recentShownIds, setRecentShownIds] = useState([]); // 無盡模式冷卻佇列
             const [isLoading, setIsLoading] = useState(true);
             const [notice, setNotice] = useState(null);
             const [showHelpModal, setShowHelpModal] = useState(false);
+            const [showResetModal, setShowResetModal] = useState(false);
+            const [resetPasswordInput, setResetPasswordInput] = useState('');
+            const [resetError, setResetError] = useState('');
 
             // 主介面模式：'bank' (單字庫) | 'review_setup' (複習設定) | 'review_active' (進行複習) | 'review_done' (複習完成)
             const [mainMode, setMainMode] = useState('bank');
@@ -119,6 +124,105 @@
             const [reviewCompletedCount, setReviewCompletedCount] = useState(0);
 
             const fileInputRef = useRef(null);
+
+            // 根據歷史答題記錄綜合計算當前熟練度 (時間衰減加權法)
+            const calculateMasteryInfo = (wordId) => {
+                const history = cardHistory[wordId] || [];
+                if (!history || history.length === 0) {
+                    const direct = cardMastery[wordId];
+                    if (direct) {
+                        const maps = {
+                            red: { level: 'red', name: '陌生', dotBg: 'bg-rose-500', textClass: 'text-rose-400', borderClass: 'border-rose-500/40' },
+                            yellow: { level: 'yellow', name: '生疏', dotBg: 'bg-amber-500', textClass: 'text-amber-400', borderClass: 'border-amber-500/40' },
+                            green: { level: 'green', name: '熟練', dotBg: 'bg-emerald-500', textClass: 'text-emerald-400', borderClass: 'border-emerald-500/40' },
+                            blue: { level: 'blue', name: '精通', dotBg: 'bg-blue-500', textClass: 'text-blue-400', borderClass: 'border-blue-500/40' }
+                        };
+                        return maps[direct] || { level: 'unreviewed', name: '未複習', dotBg: 'bg-gray-500', textClass: 'text-gray-400', borderClass: 'border-gray-700' };
+                    }
+                    return { level: 'unreviewed', name: '未複習', dotBg: 'bg-gray-500', textClass: 'text-gray-400', borderClass: 'border-gray-700' };
+                }
+
+                const scoreMap = { red: 1, yellow: 2, green: 3, blue: 4 };
+                let weightedSum = 0;
+                let weightTotal = 0;
+                let currentWeight = 1.0;
+
+                // 由最新到最舊加權計算 (衰減率 0.6)
+                for (let i = history.length - 1; i >= 0; i--) {
+                    const score = scoreMap[history[i]] || 2;
+                    weightedSum += score * currentWeight;
+                    weightTotal += currentWeight;
+                    currentWeight *= 0.6;
+                }
+
+                const avgScore = weightedSum / weightTotal;
+
+                if (avgScore < 1.8) {
+                    return { level: 'red', name: '陌生', dotBg: 'bg-rose-500', textClass: 'text-rose-400', borderClass: 'border-rose-500/40', score: avgScore };
+                } else if (avgScore < 2.6) {
+                    return { level: 'yellow', name: '生疏', dotBg: 'bg-amber-500', textClass: 'text-amber-400', borderClass: 'border-amber-500/40', score: avgScore };
+                } else if (avgScore < 3.4) {
+                    return { level: 'green', name: '熟練', dotBg: 'bg-emerald-500', textClass: 'text-emerald-400', borderClass: 'border-emerald-500/40', score: avgScore };
+                } else {
+                    return { level: 'blue', name: '精通', dotBg: 'bg-blue-500', textClass: 'text-blue-400', borderClass: 'border-blue-500/40', score: avgScore };
+                }
+            };
+
+            // 計算單字卡出牌機率權重 (Anki 演算法原則：熟練度 + 未複習天數 + 近期防重複冷卻)
+            const getCardAnkiWeight = (word, recentIds = []) => {
+                const masteryInfo = calculateMasteryInfo(word.id);
+                const level = masteryInfo.level;
+
+                // 1. 熟練度基礎權重 (越不熟權重越高等待複習)
+                let baseWeight = 5.0;
+                if (level === 'red') baseWeight = 12.0;
+                else if (level === 'yellow') baseWeight = 6.0;
+                else if (level === 'green') baseWeight = 2.0;
+                else if (level === 'blue') baseWeight = 0.6;
+                else if (level === 'unreviewed') baseWeight = 9.0;
+
+                // 2. 逾期未複習天數加成 (Overdue Days Factor)
+                const lastTime = lastReviewedAt[word.id];
+                let daysMultiplier = 1.0;
+                if (!lastTime) {
+                    daysMultiplier = 1.3;
+                } else {
+                    const daysDiff = (Date.now() - lastTime) / (1000 * 60 * 60 * 24);
+                    // 天數越多出現權重越高，最高增至 5 倍
+                    daysMultiplier = 1.0 + Math.min(daysDiff * 0.5, 4.0);
+                }
+
+                // 3. 短期冷卻機制 (避免連續出現同一個單字)
+                let cooldownMultiplier = 1.0;
+                const recentPos = recentIds.indexOf(word.id);
+                if (recentPos !== -1) {
+                    // 如果是剛出過的最後一張卡，大幅降低權重
+                    if (recentPos === recentIds.length - 1) {
+                        cooldownMultiplier = 0.01;
+                    } else {
+                        cooldownMultiplier = 0.15;
+                    }
+                }
+
+                return Math.max(0.05, baseWeight * daysMultiplier * cooldownMultiplier);
+            };
+
+            // Anki 動態輪盤抽牌演算法
+            const pickNextEndlessIndex = (queue, recentIds) => {
+                if (!queue || queue.length <= 1) return 0;
+
+                const weights = queue.map(w => getCardAnkiWeight(w, recentIds));
+                const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+
+                let randomVal = Math.random() * totalWeight;
+                for (let i = 0; i < queue.length; i++) {
+                    if (randomVal < weights[i]) {
+                        return i;
+                    }
+                    randomVal -= weights[i];
+                }
+                return Math.floor(Math.random() * queue.length);
+            };
 
             const parseHtmlToWords = (htmlText) => {
                 try {
@@ -262,7 +366,9 @@
                         setIsFlipped(false);
                         setStats({ red: 0, yellow: 0, green: 0, blue: 0 });
                         setCardMastery({});
+                        setCardHistory({});
                         setLastReviewedAt({});
+                        setRecentShownIds([]);
                         const groups = Array.from(new Set(parsedData.map(w => w.group || "Group 84")));
                         setSelectedReviewGroups(groups);
                         setNotice(`✅ 成功載入「${file.name}」，共 ${parsedData.length} 個單字！`);
@@ -285,11 +391,14 @@
                         setIsFlipped(false);
                         setTimeout(() => setReviewIndex(prev => prev + 1), 120);
                     } else if (reviewModeType === 'endless') {
-                        // 無盡循環模式：打亂重新接續
-                        const reshuffled = [...reviewQueue].sort(() => Math.random() - 0.5);
-                        setReviewQueue(reshuffled);
+                        // 無盡循環模式：使用 Anki 加權抽選下一個單字
+                        const currentId = reviewQueue[reviewIndex]?.id;
+                        const newRecent = [...recentShownIds, currentId].slice(-3);
+                        setRecentShownIds(newRecent);
+
+                        const nextIdx = pickNextEndlessIndex(reviewQueue, newRecent);
                         setIsFlipped(false);
-                        setTimeout(() => setReviewIndex(0), 120);
+                        setTimeout(() => setReviewIndex(nextIdx), 120);
                     }
                 }
             };
@@ -328,10 +437,25 @@
             const handleRate = (level, currentWordId) => {
                 setStats(prev => ({ ...prev, [level]: prev[level] + 1 }));
                 
-                // 記錄此單字最新熟練度與複習時間戳記
                 if (currentWordId) {
-                    setCardMastery(prev => ({ ...prev, [currentWordId]: level }));
+                    // 更新歷史記錄與時間戳記
+                    const newHistoryList = [...(cardHistory[currentWordId] || []), level];
+                    const updatedHistory = { ...cardHistory, [currentWordId]: newHistoryList };
+                    setCardHistory(updatedHistory);
                     setLastReviewedAt(prev => ({ ...prev, [currentWordId]: Date.now() }));
+
+                    // 計算新動態熟練度等級並寫回
+                    const historyMap = updatedHistory[currentWordId];
+                    const scoreMap = { red: 1, yellow: 2, green: 3, blue: 4 };
+                    let weightedSum = 0, weightTotal = 0, currW = 1.0;
+                    for (let i = historyMap.length - 1; i >= 0; i--) {
+                        weightedSum += (scoreMap[historyMap[i]] || 2) * currW;
+                        weightTotal += currW;
+                        currW *= 0.6;
+                    }
+                    const avg = weightedSum / weightTotal;
+                    const calcLevel = avg < 1.8 ? 'red' : avg < 2.6 ? 'yellow' : avg < 3.4 ? 'green' : 'blue';
+                    setCardMastery(prev => ({ ...prev, [currentWordId]: calcLevel }));
                 }
 
                 if (mainMode === 'bank') {
@@ -345,11 +469,13 @@
                         if (reviewModeType === 'single') {
                             setMainMode('review_done');
                         } else {
-                            // 無盡循環模式
-                            const reshuffled = [...reviewQueue].sort(() => Math.random() - 0.5);
-                            setReviewQueue(reshuffled);
+                            // 無盡模式：動態加權抽出下一個單字
+                            const newRecent = [...recentShownIds, currentWordId].slice(-3);
+                            setRecentShownIds(newRecent);
+
+                            const nextIdx = pickNextEndlessIndex(reviewQueue, newRecent);
                             setIsFlipped(false);
-                            setTimeout(() => setReviewIndex(0), 120);
+                            setTimeout(() => setReviewIndex(nextIdx), 120);
                         }
                     }
                 }
@@ -365,11 +491,11 @@
                     const grp = word.group || "Group 84";
                     if (!selectedReviewGroups.includes(grp)) return false;
 
-                    // 熟練度過濾（若有勾選任一熟練度）
+                    // 熟練度過濾
                     const anyMasterySelected = Object.values(reviewMasteries).some(v => v);
                     if (anyMasterySelected) {
-                        const wordMastery = cardMastery[word.id];
-                        if (!wordMastery || !reviewMasteries[wordMastery]) return false;
+                        const mInfo = calculateMasteryInfo(word.id);
+                        if (!reviewMasteries[mInfo.level]) return false;
                     }
 
                     // 星星過濾
@@ -379,13 +505,13 @@
                         if (reviewStars.blue && !starState.blue) return false;
                     }
 
-                    // 天數過濾（複習 X 天內沒複習過的單字）
+                    // 天數過濾
                     if (useDaysFilter && reviewDaysInput > 0) {
                         const lastTime = lastReviewedAt[word.id];
                         if (lastTime) {
                             const daysDiff = (Date.now() - lastTime) / (1000 * 60 * 60 * 24);
                             if (daysDiff < reviewDaysInput) {
-                                return false; // 在指定天數內已經複習過，予以排除
+                                return false;
                             }
                         }
                     }
@@ -398,31 +524,44 @@
                     return;
                 }
 
-                // 隨機打亂
+                // 初次複習佇列隨機打亂
                 pool = [...pool].sort(() => Math.random() - 0.5);
 
-                // 限制張數（若非無限）
                 if (!isInfiniteCount && reviewCountInput > 0) {
                     pool = pool.slice(0, Number(reviewCountInput));
                 }
 
                 setReviewQueue(pool);
                 setReviewIndex(0);
+                setRecentShownIds([]);
                 setReviewCompletedCount(0);
                 setIsFlipped(false);
                 setMainMode('review_active');
                 setNotice(null);
             };
 
-            const resetApp = () => {
+            const handleOpenResetModal = () => {
+                setResetPasswordInput('');
+                setResetError('');
+                setShowResetModal(true);
+            };
+
+            const executeReset = () => {
+                if (resetPasswordInput !== '6174') {
+                    setResetError('❌ 密碼錯誤！請輸入正確密碼 (6174)');
+                    return;
+                }
                 setCurrentIndex(0);
                 setReviewIndex(0);
                 setIsFlipped(false);
                 setStats({ red: 0, yellow: 0, green: 0, blue: 0 });
                 setStarredWords({});
                 setCardMastery({});
+                setCardHistory({});
                 setLastReviewedAt({});
-                setNotice("已重置學習進度、歷史記錄與星號標記。");
+                setRecentShownIds([]);
+                setNotice("已成功重置學習進度、歷史記錄與星號標記。");
+                setShowResetModal(false);
             };
 
             if (isLoading) {
@@ -441,72 +580,72 @@
 
             const totalBankCount = bankFilteredWords.length;
             const currentCardNumber = mainMode === 'review_active' ? (reviewIndex + 1) : (currentIndex + 1);
-            const totalCardNumber = mainMode === 'review_active' ? reviewQueue.length : totalBankCount;
-            const progressPercentage = totalCardNumber > 0 ? (currentCardNumber / totalCardNumber) * 100 : 0;
-            const currentStarState = starredWords[currentWord.id] || { yellow: false, blue: false };
+            const renderCardHeader = () => {
+                const mInfo = calculateMasteryInfo(currentWord.id);
 
-            const renderExample = (exText) => {
-                if (!exText) return null;
-                const parts = exText.split('<br>');
                 return (
-                    <div className="text-left bg-gray-900/80 p-3 rounded-xl border border-gray-800 text-sm">
-                        <div className="text-xs text-indigo-400 font-semibold mb-1">例句 Example:</div>
-                        <div className="text-gray-200 font-medium">{parts[0]}</div>
-                        {parts[1] && <div className="text-gray-400 text-xs mt-1 border-t border-gray-800 pt-1">{parts[1]}</div>}
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-500 font-mono">#{currentWord.id || "N/A"}</span>
+                            
+                            {/* 熟練度動態圓形標籤 */}
+                            <div 
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-900/90 border ${mInfo.borderClass} transition-all shadow-sm`}
+                                title={`當前熟練度：${mInfo.name}`}
+                            >
+                                <span className={`w-2.5 h-2.5 rounded-full ${mInfo.dotBg} shrink-0 animate-pulse`}></span>
+                                <span className={`text-[11px] font-bold ${mInfo.textClass}`}>{mInfo.name}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                            {/* 黃星星（放大觸控範圍） */}
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleStar(currentWord.id, 'yellow');
+                                }}
+                                className={`px-2.5 py-1.5 rounded-xl text-sm font-bold transition-all border active:scale-90 ${
+                                    currentStarState.yellow 
+                                        ? 'bg-amber-500/25 text-amber-300 border-amber-500/60 shadow-md scale-105' 
+                                        : 'bg-gray-900/80 text-gray-500 border-gray-800 hover:text-amber-400 hover:border-gray-700'
+                                }`}
+                                title="黃星星（不太記得）"
+                            >
+                                ★
+                            </button>
+
+                            {/* 藍星星（放大觸控範圍） */}
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleStar(currentWord.id, 'blue');
+                                }}
+                                className={`px-2.5 py-1.5 rounded-xl text-sm font-bold transition-all border active:scale-90 ${
+                                    currentStarState.blue 
+                                        ? 'bg-blue-500/25 text-blue-300 border-blue-500/60 shadow-md scale-105' 
+                                        : 'bg-gray-900/80 text-gray-500 border-gray-800 hover:text-blue-400 hover:border-gray-700'
+                                }`}
+                                title="藍星星（不太記得部分字義）"
+                            >
+                                ★
+                            </button>
+
+                            {/* 發音 */}
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    speakWord(currentWord.en || currentWord.word);
+                                }}
+                                className="ml-1 px-2.5 py-1.5 bg-indigo-900/40 hover:bg-indigo-900/70 text-indigo-300 rounded-xl text-xs font-semibold flex items-center gap-1 border border-indigo-700/50 transition-colors active:scale-95"
+                                title="發音 (Pronunciation)"
+                            >
+                                🔊
+                            </button>
+                        </div>
                     </div>
                 );
             };
-
-            const renderCardHeader = () => (
-                <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 font-mono">#{currentWord.id || "N/A"}</span>
-                    <div className="flex items-center gap-1.5">
-                        {/* 黃星星 */}
-                        <button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleStar(currentWord.id, 'yellow');
-                            }}
-                            className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${
-                                currentStarState.yellow 
-                                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm' 
-                                    : 'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-amber-400'
-                            }`}
-                            title="黃星星（不太記得）"
-                        >
-                            ★
-                        </button>
-
-                        {/* 藍星星 */}
-                        <button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleStar(currentWord.id, 'blue');
-                            }}
-                            className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${
-                                currentStarState.blue 
-                                    ? 'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm' 
-                                    : 'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'
-                            }`}
-                            title="藍星星（不太記得部分字義）"
-                        >
-                            ★
-                        </button>
-
-                        {/* 發音 */}
-                        <button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                speakWord(currentWord.en || currentWord.word);
-                            }}
-                            className="ml-1 px-2.5 py-1 bg-indigo-900/40 hover:bg-indigo-900/70 text-indigo-300 rounded-lg text-xs flex items-center gap-1 border border-indigo-700/50 transition-colors"
-                            title="發音 (Pronunciation)"
-                        >
-                            🔊 發音
-                        </button>
-                    </div>
-                </div>
-            );
 
             return (
                 <div className="min-h-screen flex flex-col max-w-lg mx-auto p-4 sm:p-6 pb-12">
@@ -524,7 +663,7 @@
                             <input type="file" accept=".json,.html,.htm" ref={fileInputRef} onChange={handleFileUpload} />
                             
                             <button 
-                                onClick={resetApp}
+                                onClick={handleOpenResetModal}
                                 className="px-3 py-1.5 bg-[#1e2330] hover:bg-gray-800 border border-gray-700 rounded-full text-xs text-gray-300 flex items-center gap-1 active:scale-95 transition-all shadow"
                                 title="重置進度"
                             >
@@ -1141,7 +1280,7 @@
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <div className="flex justify-between items-center mb-3 border-b border-gray-800 pb-2">
-                                    <h3 className="text-base font-bold text-white">熟練度等級說明</h3>
+                                    <h3 className="text-base font-bold text-white">熟練度等級與算法說明</h3>
                                     <button 
                                         onClick={() => setShowHelpModal(false)}
                                         className="text-gray-400 hover:text-white font-bold text-sm"
@@ -1150,31 +1289,100 @@
                                     </button>
                                 </div>
                                 
-                                <ul className="space-y-3 text-xs leading-relaxed">
+                                <ul className="space-y-2.5 text-xs leading-relaxed mb-4">
                                     <li className="flex gap-2">
                                         <span className="text-blue-400 font-bold shrink-0">🔵 精通：</span>
-                                        <span className="text-gray-300">完全掌握，一顯示英文就能馬上答出中文意思。</span>
+                                        <span className="text-gray-300">完全掌握，能馬上答出中文意思。</span>
                                     </li>
                                     <li className="flex gap-2">
                                         <span className="text-emerald-400 font-bold shrink-0">🟢 熟練：</span>
-                                        <span className="text-gray-300">能掌握大部分字義，但有些延伸意思不夠熟悉。</span>
+                                        <span className="text-gray-300">掌握大部分字義，部分延伸用法不熟。</span>
                                     </li>
                                     <li className="flex gap-2">
                                         <span className="text-amber-400 font-bold shrink-0">🟡 生疏：</span>
-                                        <span className="text-gray-300">不太記得意思，需思考較久或依靠提示。</span>
+                                        <span className="text-gray-300">不太記得意思，需思考較久或看提示。</span>
                                     </li>
                                     <li className="flex gap-2">
                                         <span className="text-rose-400 font-bold shrink-0">🔴 陌生：</span>
-                                        <span className="text-gray-300">沒聽過或完全不記得此單字。</span>
+                                        <span className="text-gray-300">完全不記得或沒看過此單字。</span>
+                                    </li>
+                                    <li className="flex gap-2 pt-1 border-t border-gray-800">
+                                        <span className="text-indigo-400 font-bold shrink-0">🧠 Anki 複習：</span>
+                                        <span className="text-gray-400">無盡模式會自動根據綜合歷史分數、越久沒複習的天數，提高生疏單字的抽牌機率！</span>
                                     </li>
                                 </ul>
 
                                 <button 
                                     onClick={() => setShowHelpModal(false)}
-                                    className="mt-5 w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition-colors"
+                                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition-colors"
                                 >
                                     知道了
                                 </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Reset Password Modal */}
+                    {showResetModal && (
+                        <div 
+                            className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setShowResetModal(false)}
+                        >
+                            <div 
+                                className="bg-[#131825] border border-rose-900/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-left"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="flex justify-between items-center mb-3 border-b border-gray-800 pb-2">
+                                    <h3 className="text-base font-bold text-rose-400 flex items-center gap-1.5">
+                                        ⚠️ 重置進度確認
+                                    </h3>
+                                    <button 
+                                        onClick={() => setShowResetModal(false)}
+                                        className="text-gray-400 hover:text-white font-bold text-sm"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                
+                                <p className="text-xs text-gray-300 leading-relaxed mb-4">
+                                    此操作將會清空所有學習紀錄、熟悉度及星號標記。為避免誤觸，請輸入解鎖密碼 <span className="font-mono text-rose-400 font-bold bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-800/50">6174</span> 以進行重置。
+                                </p>
+
+                                <form onSubmit={(e) => { e.preventDefault(); executeReset(); }} className="space-y-4">
+                                    <div>
+                                        <input 
+                                            type="password"
+                                            value={resetPasswordInput}
+                                            onChange={(e) => {
+                                                setResetPasswordInput(e.target.value);
+                                                if (resetError) setResetError('');
+                                            }}
+                                            placeholder="請輸入密碼 (6174)"
+                                            autoFocus
+                                            maxLength={10}
+                                            className="w-full bg-gray-900 border border-gray-700 focus:border-rose-500 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none font-mono text-center tracking-widest"
+                                        />
+                                        {resetError && (
+                                            <p className="text-rose-400 text-xs mt-2 font-medium">{resetError}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex gap-2 pt-1">
+                                        <button 
+                                            type="button"
+                                            onClick={() => setShowResetModal(false)}
+                                            className="flex-1 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition-colors"
+                                        >
+                                            取消
+                                        </button>
+                                        <button 
+                                            type="submit"
+                                            className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all shadow active:scale-95"
+                                        >
+                                            確認重置
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     )}
