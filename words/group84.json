@@ -151,17 +151,7 @@
         "ex": "My sister, Anne got married yesterday. I saw her eyes sparkled with happiness.<br>我的姐姐，安妮，昨天結婚了。我看她的眼神閃耀著幸福。",
         "root": "spark + -le (連續反覆動作)",
         "mem": "火花 (spark) 連續不斷產生 (-le)，眼神燦爛閃耀。"
-      },
-      {
-        "id": 4168,
-        "en": "sparkling",
-        "pos": "adj.",
-        "zh": "吐出火花的；閃亮",
-        "ex": "",
-        "root": "sparkle + -ing (形容詞字尾)",
-        "mem": "sparkling water 就是氣泡水，像火花般閃亮發泡的。"
-      }
-      
+      },    
   {
     "id": 4168,
     "en": "sparkling", 
