@@ -480,15 +480,24 @@ const renderCardHeader=()=>(
 <div className="flex items-center gap-1.5">  
 <button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'yellow')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.yellow?'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-amber-400'}`} title="黃星星（不太記得）">★</button>  
 <button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'blue')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.blue?'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'}`} title="藍星星（不太記得部分字義）">★</button>
-<span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-700 bg-gray-950/80 shadow-sm" title={(()=>{
-const score=getMasteryScore(loadLearningRecords()[String(currentWord.id)]);
-if(score===null)return "尚未複習";
+<span className={`inline-flex items-center justify-center w-5 h-5 rounded-full border shadow-sm ${(()=>{
+const record=normalizeLearningRecord(loadLearningRecords()[String(currentWord.id)]);
+const reviewed=Number(record.reviewCount)>0 || !!record.lastReviewedAt;
+return reviewed?'border-gray-700 bg-gray-950/80':'border-gray-500 bg-gray-700/60';
+})()}`} title={(()=>{
+const record=normalizeLearningRecord(loadLearningRecords()[String(currentWord.id)]);
+const reviewed=Number(record.reviewCount)>0 || !!record.lastReviewedAt;
+if(!reviewed)return "尚未複習";
+const score=getMasteryScore(record);
 const level=getMasteryLevelFromScore(score);
 return `熟練度 ${Math.round(score)}/100 · ${level==='red'?'陌生':level==='yellow'?'生疏':level==='green'?'熟練':'精通'}`;
 })()}>
 <span className={`w-2.5 h-2.5 rounded-full ${(()=>{
-const score=getMasteryScore(loadLearningRecords()[String(currentWord.id)]),level=getMasteryLevelFromScore(score);
-return level==='red'?'bg-rose-500':level==='yellow'?'bg-amber-400':level==='green'?'bg-emerald-400':level==='blue'?'bg-blue-400':'bg-gray-600';
+const record=normalizeLearningRecord(loadLearningRecords()[String(currentWord.id)]);
+const reviewed=Number(record.reviewCount)>0 || !!record.lastReviewedAt;
+if(!reviewed)return 'bg-gray-400';
+const score=getMasteryScore(record),level=getMasteryLevelFromScore(score);
+return level==='red'?'bg-rose-500':level==='yellow'?'bg-amber-400':level==='green'?'bg-emerald-400':level==='blue'?'bg-blue-400':'bg-gray-400';
 })()}`}></span>
 </span>  
 <button onClick={e=>{e.stopPropagation();speakWord(currentWord.en||currentWord.word)}} className="ml-1 px-2.5 py-1 bg-indigo-900/40 hover:bg-indigo-900/70 text-indigo-300 rounded-lg text-xs flex items-center gap-1 border border-indigo-700/50 transition-colors" title="發音 (Pronunciation)">🔊 發音</button>  
