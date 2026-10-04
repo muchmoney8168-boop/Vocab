@@ -1,3 +1,6 @@
+
+       你就直接完整改給我：
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -102,7 +105,10 @@
             //     2: [Group 2 的單字],
             //     ...
             // }
-            const [groupCache, setGroupCache] = useState({});
+            const groupCacheRef = useRef({});
+const groupLoadingRef = useRef({});
+const bankLoadRequestRef = useRef(0);
+const reviewStartRequestRef = useRef(0);
 
             // 主介面模式：
             // 'bank' | 'review_setup' | 'review_active' | 'review_done'
@@ -250,187 +256,121 @@
             );
 
             // ==================== 單一 Group 載入 ====================
-            const loadGroup = async (groupNumber) => {
-                try {
-                    setIsLoading(true);
+           const fetchGroupData = async (groupNumber) => {
+  // 已經載入過，直接使用快取
+  if (groupCacheRef.current[groupNumber]) {
+    return groupCacheRef.current[groupNumber];
+  }
 
-                    // 如果快取已有資料，可以直接使用
-                    if (groupCache[groupNumber]) {
-                        const cachedData = groupCache[groupNumber];
+  // 同一組正在載入中，就共用同一個 Promise
+  if (groupLoadingRef.current[groupNumber]) {
+    return groupLoadingRef.current[groupNumber];
+  }
 
-                        setWords(cachedData);
-                        setCurrentIndex(0);
-                        setIsFlipped(false);
+  const fileName = `group${String(groupNumber).padStart(2, "0")}.json`;
 
-                        setNotice(
-                            `使用已載入的 Group ${groupNumber}（${cachedData.length} 字）`
-                        );
+  const promise = (async () => {
+    const response = await fetch(`./words/${fileName}`, {
+      cache: "no-store"
+    });
 
-                        return;
-                    }
+    if (!response.ok) {
+      throw new Error(`找不到 ${fileName}`);
+    }
 
-                    const fileName = `group${String(groupNumber).padStart(2, '0')}.json`;
-                    const res = await fetch(`./words/${fileName}`);
+    const data = await response.json();
 
-                    if (!res.ok) {
-                        throw new Error(`HTTP ${res.status}`);
-                    }
+    if (!Array.isArray(data)) {
+      throw new Error(`${fileName} 格式錯誤`);
+    }
 
-                    const parsed = await res.json();
+    const normalizedData = data.map(item => ({
+      ...item,
+      group: item.group || `Group ${groupNumber}`
+    }));
 
-                    console.log("載入的 JSON：", parsed);
-                    console.log("是不是陣列：", Array.isArray(parsed));
+    groupCacheRef.current[groupNumber] = normalizedData;
 
-                    if (!Array.isArray(parsed)) {
-                        throw new Error("JSON 最外層不是陣列");
-                    }
+    return normalizedData;
+  })();
 
-                    const loadedData = parsed.map(item => ({
-                        ...item,
-                        group: `Group ${groupNumber}`
-                    }));
+  groupLoadingRef.current[groupNumber] = promise;
 
-                    console.log(
-                        `Group ${groupNumber} 載入 ${loadedData.length} 個單字`
-                    );
+  try {
+    return await promise;
+  } finally {
+    delete groupLoadingRef.current[groupNumber];
+  }
+};
 
-                    setWords(loadedData);
 
-                    // 新增：存入快取
-                    setGroupCache(prev => ({
-                        ...prev,
-                        [groupNumber]: loadedData
-                    }));
+const loadGroup = async (groupNumber) => {
+  const requestId = ++bankLoadRequestRef.current;
 
-                    setCurrentIndex(0);
-                    setIsFlipped(false);
+  setIsLoading(true);
 
-                    setNotice(
-                        `成功載入第 ${groupNumber} 組：${fileName}（${loadedData.length} 字）`
-                    );
+  try {
+    const data = await fetchGroupData(groupNumber);
 
-                } catch (e) {
-                    console.error(`載入 Group ${groupNumber} 失敗：`, e);
+    // 如果這不是最新一次的請求，就不要覆蓋目前畫面
+    if (requestId !== bankLoadRequestRef.current) {
+      return;
+    }
 
-                    setWords([]);
-                    setCurrentIndex(0);
-                    setIsFlipped(false);
+    setWords(data);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setNotice(`已載入第 ${groupNumber} 組，共 ${data.length} 個單字`);
+  } catch (error) {
+    if (requestId !== bankLoadRequestRef.current) {
+      return;
+    }
 
-                    setNotice(
-                        `❌ 無法載入 Group ${groupNumber}：${e.message}`
-                    );
-                } finally {
-                    setIsLoading(false);
-                }
-            };
+    setNotice(`❌ 載入第 ${groupNumber} 組失敗：${error.message}`);
+  } finally {
+    if (requestId === bankLoadRequestRef.current) {
+      setIsLoading(false);
+    }
+  }
+};
 
             // ============================================================
             // 新增：一次載入多個 Group
             // ============================================================
-            const loadGroups = async (groupNumbers) => {
-                try {
-                    setIsLoading(true);
+          const loadGroups = async (groupNumbers) => {
+    try {
+        setIsLoading(true);
 
-                    console.log("準備載入複習組別：", groupNumbers);
+        console.log("準備載入複習組別：", groupNumbers);
 
-                    const results = await Promise.all(
-                        groupNumbers.map(async (groupNumber) => {
+        const results = await Promise.all(
+            groupNumbers.map(async (groupNumber) => {
 
-                            // ----------------------------
-                            // 1. 先檢查快取
-                            // ----------------------------
-                            if (groupCache[groupNumber]) {
-                                console.log(
-                                    `Group ${groupNumber} 使用快取`
-                                );
-
-                                return {
-                                    groupNumber,
-                                    data: groupCache[groupNumber]
-                                };
-                            }
-
-                            // ----------------------------
-                            // 2. 快取沒有才下載 JSON
-                            // ----------------------------
-                            const fileName =
-                                `group${String(groupNumber).padStart(2, '0')}.json`;
-
-                            console.log(
-                                `正在下載 ${fileName}`
-                            );
-
-                            const res = await fetch(`./words/${fileName}`);
-
-                            if (!res.ok) {
-                                throw new Error(
-                                    `Group ${groupNumber} 載入失敗：HTTP ${res.status}`
-                                );
-                            }
-
-                            const parsed = await res.json();
-
-                            if (!Array.isArray(parsed)) {
-                                throw new Error(
-                                    `Group ${groupNumber} 的 JSON 最外層不是陣列`
-                                );
-                            }
-
-                            const loadedData = parsed.map(item => ({
-                                ...item,
-                                group: `Group ${groupNumber}`
-                            }));
-
-                            console.log(
-                                `Group ${groupNumber} 成功載入 ${loadedData.length} 字`
-                            );
-
-                            return {
-                                groupNumber,
-                                data: loadedData
-                            };
-                        })
-                    );
-
-                    // ----------------------------
-                    // 3. 更新快取
-                    // ----------------------------
-                    setGroupCache(prev => {
-                        const newCache = { ...prev };
-
-                        results.forEach(result => {
-                            newCache[result.groupNumber] = result.data;
-                        });
-
-                        return newCache;
-                    });
-
-                    // ----------------------------
-                    // 4. 合併所有 Group
-                    // ----------------------------
-                    const mergedWords = results.flatMap(
-                        result => result.data
-                    );
-
-                    console.log(
-                        `複習題庫共載入 ${mergedWords.length} 個單字`
-                    );
-
-                    return mergedWords;
-
-                } catch (e) {
-                    console.error("載入複習題庫失敗：", e);
-
-                    setNotice(
-                        `❌ 載入複習題庫失敗：${e.message}`
-                    );
-
-                    return null;
-
-                } finally {
-                    setIsLoading(false);
+                // ----------------------------
+                // 1. 先檢查快取
+                // ----------------------------
+                if (groupCache[groupNumber]) {
+                    ...
                 }
-            };
+
+                ...
+
+            })
+        );
+
+        ...
+
+        return mergedWords;
+
+    } catch (e) {
+        ...
+
+        return null;
+
+    } finally {
+        setIsLoading(false);
+    }
+};
 
             // ==================== 單字庫模式過濾 ====================
             const bankFilteredWords = words.filter(word => {
@@ -832,8 +772,13 @@
                 // ----------------------------
                 // 3. 動態載入所有選取 Group
                 // ----------------------------
-                const allReviewWords =
-                    await loadGroups(groupNumbers);
+                const requestId = ++reviewStartRequestRef.current;
+
+const allReviewWords = await loadGroups(selectedReviewGroups);
+
+if (requestId !== reviewStartRequestRef.current) {
+  return;
+}
 
                 if (
                     !Array.isArray(allReviewWords)
