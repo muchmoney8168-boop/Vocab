@@ -1,20 +1,49 @@
-[
-      {
-        "id": 4151,
-        "en": "sore",
-        "pos": "adj.",
-        "zh": "疼痛的",
-        "ex": "Poor girl! It must be extreme sore. Be brave!<br>可憐的女孩，一定很痛吧。勇敢一點喔。",
-        "root": "古英語 sār（受傷痛楚）",
-        "mem": "諧音「瘦兒」：太過瘦弱的孩子跌倒容易感到疼痛。"
-      },
-      {
-        "id": 4152,
-        "en": "sorrow",
-        "pos": "n./v.",
-        "zh": "悲傷",
-        "ex": "I don't know how to throw away my sorrow; maybe I just keep thinking too much.<br>我不知道如何拋棄我的煩惱，或許我只是想太多。",
-        "root": "原始日耳曼語 sorgō（憂慮受創）",
-        "mem": "sor (sore 痛) + row (划船)：獨自在寒風中划船，心中充滿悲傷。"
-      }
+
+      
+  {
+    "id": 416,
+    "en": "prominent",
+    "pos": "adj.",
+    "zh": "突出的；顯著的；重要的",
+    "ex": "",
+    "root": "pro-（向前）+ min（突出、伸出）+ -ent（具有……性質的）",
+    "mem": "prominent 想成「前面突出來」：一個人站在人群最前面、特別顯眼，因此 prominent＝突出的、顯著的，也可指重要的。"
+  },
+  {
+    "id": 417,
+    "en": "procedure",
+    "pos": "n.",
+    "zh": "程序；步驟；手續",
+    "ex": "",
+    "root": "pro-（向前）+ ced（走）+ -ure（表示行為或結果）→ 按順序向前走",
+    "mem": "procedure 就是「一步一步往前走」：做實驗、辦手續都不能亂來，要按照固定步驟進行；procedure＝程序、步驟。"
+  },
+  {
+    "id": 418,
+    "en": "perverse",
+    "pos": "adj.",
+    "zh": "乖張的；故意作對的；不合常理的",
+    "ex": "",
+    "root": "per-（完全、徹底）+ vers（轉）→ 徹底轉向、偏離正常方向",
+    "mem": "perverse 可以想成「偏離正軌」：大家都往前走，他偏偏故意轉到另一邊，甚至故意唱反調；perverse＝乖張的、故意作對的。"
+  },
+  {
+    "id": 419,
+    "en": "dilemma",
+    "pos": "n.",
+    "zh": "進退兩難；兩難局面",
+    "ex": "",
+    "root": "di-（兩個）+ lemma（命題、前提）→ 兩個選項造成的困境",
+    "mem": "dilemma 想成「兩邊都麻煩」：左邊選也不好、右邊選也不好，只能卡在中間；dilemma＝進退兩難。"
+  },
+  {
+    "id": 420,
+    "en": "provoke",
+    "pos": "v.",
+    "zh": "激怒；挑釁；引起",
+    "ex": "",
+    "root": "pro-（向前）+ vok（喊、召喚）→ 把某種反應「喊」出來",
+    "mem": "provoke 想成「跑去惹」：故意跑到別人面前挑釁，把對方的情緒或反應惹出來；provoke＝激怒、挑釁，也可指引起某種反應。"
+  }
+
 ]
