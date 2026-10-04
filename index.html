@@ -482,7 +482,7 @@ const renderCardHeader=()=>(
 <button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'blue')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.blue?'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'}`} title="藍星星（不太記得部分字義）">★</button>
 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-700 bg-gray-950/80 shadow-sm" title={(()=>{
 const score=getMasteryScore(loadLearningRecords()[String(currentWord.id)]);
-if(score===null)return "尚未建立熟練度";
+if(score===null)return "尚未複習";
 const level=getMasteryLevelFromScore(score);
 return `熟練度 ${Math.round(score)}/100 · ${level==='red'?'陌生':level==='yellow'?'生疏':level==='green'?'熟練':'精通'}`;
 })()}>
