@@ -28,10 +28,82 @@ const DEFAULT_WORDS=[
 ];  
   
 const LEARNING_STORAGE_KEY="vocab_learning_records_v1";
-const EMPTY_LEARNING_RECORD={red:0,yellow:0,green:0,blue:0,mastery:null,yellowStar:false,blueStar:false,lastReviewedAt:null};
+const EMPTY_LEARNING_RECORD={
+red:0,yellow:0,green:0,blue:0,mastery:null,masteryScore:null,
+yellowStar:false,blueStar:false,lastReviewedAt:null,
+successStreak:0,failureStreak:0,reviewCount:0
+};
 const loadLearningRecords=()=>{try{const raw=localStorage.getItem(LEARNING_STORAGE_KEY);return raw?JSON.parse(raw)||{}:{};}catch(e){console.error("讀取學習紀錄失敗：",e);return{};}};
 const saveLearningRecords=records=>{try{localStorage.setItem(LEARNING_STORAGE_KEY,JSON.stringify(records));}catch(e){console.error("儲存學習紀錄失敗：",e);}};
 const normalizeLearningRecord=record=>({...EMPTY_LEARNING_RECORD,...(record||{})});
+
+// 0~100 的連續熟練度；會保留前幾次回答的影響。
+const ratingScore={red:0,yellow:35,green:70,blue:100};
+const getMasteryScore=record=>{
+const r=normalizeLearningRecord(record);
+if(Number.isFinite(Number(r.masteryScore)))return Math.max(0,Math.min(100,Number(r.masteryScore)));
+const total=['red','yellow','green','blue'].reduce((sum,k)=>sum+(Number(r[k])||0),0);
+if(total>0)return Math.round(((Number(r.red)||0)*0+(Number(r.yellow)||0)*35+(Number(r.green)||0)*70+(Number(r.blue)||0)*100)/total);
+return null;
+};
+const getMasteryLevelFromScore=score=>{
+if(score===null||score===undefined||Number.isNaN(Number(score)))return null;
+if(score<25)return 'red';
+if(score<55)return 'yellow';
+if(score<80)return 'green';
+return 'blue';
+};
+const getDaysSinceReview=lastTime=>{
+if(!lastTime)return 999;
+return Math.max(0,(Date.now()-lastTime)/(1000*60*60*24));
+};
+
+// 混合式間隔重複模型：用遺忘曲線估計「現在有多需要複習」，再把需求度轉成機率。
+const getStabilityDays=record=>{
+const r=normalizeLearningRecord(record);
+const s=Number(r.stabilityDays);
+if(Number.isFinite(s)&&s>0)return Math.min(365,s);
+const score=getMasteryScore(r),reviews=Number(r.reviewCount)||0;
+if(score===null)return 0;
+return Math.max(0.25,0.5+(score/100)*Math.min(6,1+reviews*0.5));
+};
+const getDifficultyFactor=record=>{
+const d=Number(normalizeLearningRecord(record).difficulty);
+return Number.isFinite(d)?Math.max(0.65,Math.min(1.45,d)):1;
+};
+const getRecallProbability=(record,now=Date.now())=>{
+const r=normalizeLearningRecord(record);
+if(!r.lastReviewedAt||getStabilityDays(r)<=0)return 0;
+const days=Math.max(0,(now-r.lastReviewedAt)/(1000*60*60*24));
+return Math.max(0,Math.min(1,Math.exp(-days/getStabilityDays(r))));
+};
+const getInfiniteWeight=(word,records)=>{
+const r=normalizeLearningRecord(records[String(word.id)]);
+const reviews=Number(r.reviewCount)||0;
+const recall=getRecallProbability(r);
+const forgetting=reviews===0?1:1-recall;
+const difficulty=getDifficultyFactor(r);
+const failureStreak=Math.min(Number(r.failureStreak)||0,6);
+const successStreak=Math.min(Number(r.successStreak)||0,8);
+const forgettingNeed=Math.pow(Math.max(0.02,forgetting),1.35);
+const newCardBoost=reviews===0?3.2:1;
+const failureBoost=1+failureStreak*0.60;
+const successReduction=1/(1+successStreak*0.08);
+const difficultyBoost=0.65+0.80*difficulty;
+const exploration=0.12;
+return Math.max(0.02,exploration+newCardBoost*forgettingNeed*failureBoost*successReduction*difficultyBoost);
+};
+const weightedRandomWord=(pool,records,currentId)=>{
+if(!pool.length)return null;
+let candidates=pool;
+if(pool.length>1){const withoutCurrent=pool.filter(w=>String(w.id)!==String(currentId));if(withoutCurrent.length)candidates=withoutCurrent;}
+const weights=candidates.map(w=>getInfiniteWeight(w,records));
+const total=weights.reduce((a,b)=>a+b,0);
+if(!(total>0))return candidates[Math.floor(Math.random()*candidates.length)];
+let r=Math.random()*total;
+for(let i=0;i<candidates.length;i++){r-=weights[i];if(r<=0)return candidates[i];}
+return candidates[candidates.length-1];
+};
 const buildLearningState=records=>{const starred={},mastery={},lastReviewedAt={},stats={red:0,yellow:0,green:0,blue:0};Object.entries(records).forEach(([id,raw])=>{const r=normalizeLearningRecord(raw);if(r.yellowStar||r.blueStar)starred[id]={yellow:!!r.yellowStar,blue:!!r.blueStar};if(r.mastery)mastery[id]=r.mastery;if(r.lastReviewedAt)lastReviewedAt[id]=r.lastReviewedAt;stats.red+=Number(r.red)||0;stats.yellow+=Number(r.yellow)||0;stats.green+=Number(r.green)||0;stats.blue+=Number(r.blue)||0;});return{starred,mastery,lastReviewedAt,stats};};
 
 function FlashcardApp(){  
@@ -198,8 +270,11 @@ setIsFlipped(false);setTimeout(()=>setCurrentIndex(prev=>prev+1),120);
 if(reviewIndex<reviewQueue.length-1){  
 setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);  
 }else if(reviewModeType==='endless'){  
-setReviewQueue([...reviewQueue].sort(()=>Math.random()-.5));  
-setIsFlipped(false);setTimeout(()=>setReviewIndex(0),120);  
+const nextWord=weightedRandomWord(reviewQueue,loadLearningRecords(),currentWord.id);
+if(nextWord){
+const nextIndex=reviewQueue.findIndex(w=>String(w.id)===String(nextWord.id));
+setIsFlipped(false);setTimeout(()=>setReviewIndex(nextIndex>=0?nextIndex:0),120);
+}  
 }  
 }  
 };  
@@ -274,24 +349,43 @@ reader.readAsText(file);event.target.value='';
 const handleRate=(level,currentWordId)=>{
 if(currentWordId!==undefined&&currentWordId!==null){
 const now=Date.now(),records=loadLearningRecords(),key=String(currentWordId),old=normalizeLearningRecord(records[key]);
-records[key]={...old,[level]:(Number(old[level])||0)+1,mastery:level,lastReviewedAt:now};
+const oldScore=getMasteryScore(old),target=ratingScore[level];
+const nextScore=oldScore===null?target:Math.round(oldScore*0.65+target*0.35);
+const nextSuccess=(level==='green'||level==='blue')?(Number(old.successStreak)||0)+1:0;
+const nextFailure=(level==='red'||level==='yellow')?(Number(old.failureStreak)||0)+1:0;
+const oldStability=getStabilityDays(old);
+const stabilityBase={red:0.20,yellow:0.75,green:3,blue:7}[level];
+const stabilityMultiplier={red:0.25,yellow:0.80,green:1.65,blue:2.35}[level];
+let nextStability=oldStability>0?oldStability*stabilityMultiplier:stabilityBase;
+if(level==='red')nextStability=Math.min(nextStability,0.25);
+if(level==='yellow')nextStability=Math.min(nextStability,Math.max(0.5,oldStability||0.75));
+nextStability=Math.max(0.15,Math.min(365,nextStability));
+const oldDifficulty=Number.isFinite(Number(old.difficulty))?Number(old.difficulty):1;
+const difficultyDelta={red:0.14,yellow:0.06,green:-0.035,blue:-0.06}[level];
+const nextDifficulty=Math.max(0.65,Math.min(1.45,oldDifficulty+difficultyDelta));
+records[key]={...old,[level]:(Number(old[level])||0)+1,mastery:level,masteryScore:nextScore,lastReviewedAt:now,successStreak:nextSuccess,failureStreak:nextFailure,reviewCount:(Number(old.reviewCount)||0)+1,stabilityDays:nextStability,difficulty:nextDifficulty};
 saveLearningRecords(records);
 setCardMastery(prev=>({...prev,[currentWordId]:level}));setLastReviewedAt(prev=>({...prev,[currentWordId]:now}));
 }
 setStats(prev=>({...prev,[level]:prev[level]+1}));
-if(mainMode==='bank')handleNext();  
-else if(mainMode==='review_active'){  
-setReviewCompletedCount(prev=>prev+1);  
-if(reviewIndex<reviewQueue.length-1){  
-setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);  
-}else if(reviewModeType==='single')setMainMode('review_done');  
-else{  
-setReviewQueue([...reviewQueue].sort(()=>Math.random()-.5));  
-setIsFlipped(false);setTimeout(()=>setReviewIndex(0),120);  
-}  
-}  
-};  
-  
+if(mainMode==='bank')handleNext();
+else if(mainMode==='review_active'){
+setReviewCompletedCount(prev=>prev+1);
+if(reviewModeType==='single'){
+if(reviewIndex<reviewQueue.length-1){
+setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);
+}else setMainMode('review_done');
+}else{
+const updatedRecords=loadLearningRecords();
+const nextWord=weightedRandomWord(reviewQueue,updatedRecords,currentWordId);
+if(nextWord){
+const nextIndex=reviewQueue.findIndex(w=>String(w.id)===String(nextWord.id));
+setIsFlipped(false);setTimeout(()=>setReviewIndex(nextIndex>=0?nextIndex:0),120);
+}
+}
+}
+};
+
 const startReviewSession=async()=>{  
 if(selectedReviewGroups.length===0){  
 setNotice("⚠️ 請至少選擇一個複習組別！");return;  
@@ -337,10 +431,18 @@ if(pool.length===0){
 setNotice("⚠️ 沒有符合篩選條件的單字，請調整設定後再試！");return;  
 }  
   
-pool=[...pool].sort(()=>Math.random()-.5);  
-if(!isInfiniteCount&&reviewCountInput>0)pool=pool.slice(0,Number(reviewCountInput));  
-  
-setReviewQueue(pool);setReviewIndex(0);setReviewCompletedCount(0);setIsFlipped(false);  
+if(!isInfiniteCount&&reviewCountInput>0)pool=[...pool].sort(()=>Math.random()-.5).slice(0,Number(reviewCountInput));
+else if(reviewModeType==='single')pool=[...pool].sort(()=>Math.random()-.5);
+
+if(reviewModeType==='endless'){
+const records=loadLearningRecords();
+const firstWord=weightedRandomWord(pool,records,null);
+const firstIndex=firstWord?pool.findIndex(w=>String(w.id)===String(firstWord.id)):0;
+setReviewQueue(pool);setReviewIndex(firstIndex>=0?firstIndex:0);
+}else{
+setReviewQueue(pool);setReviewIndex(0);
+}
+setReviewCompletedCount(0);setIsFlipped(false);
 setMainMode('review_active');  
 setNotice(`成功載入 ${selectedReviewGroups.length} 組，共 ${pool.length} 張複習卡！`);  
 };  
@@ -377,7 +479,18 @@ const renderCardHeader=()=>(
 <span className="text-xs text-gray-500 font-mono">#{currentWord.id||"N/A"}</span>  
 <div className="flex items-center gap-1.5">  
 <button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'yellow')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.yellow?'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-amber-400'}`} title="黃星星（不太記得）">★</button>  
-<button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'blue')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.blue?'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'}`} title="藍星星（不太記得部分字義）">★</button>  
+<button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'blue')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.blue?'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'}`} title="藍星星（不太記得部分字義）">★</button>
+<span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-700 bg-gray-950/80 shadow-sm" title={(()=>{
+const score=getMasteryScore(loadLearningRecords()[String(currentWord.id)]);
+if(score===null)return "尚未建立熟練度";
+const level=getMasteryLevelFromScore(score);
+return `熟練度 ${Math.round(score)}/100 · ${level==='red'?'陌生':level==='yellow'?'生疏':level==='green'?'熟練':'精通'}`;
+})()}>
+<span className={`w-2.5 h-2.5 rounded-full ${(()=>{
+const score=getMasteryScore(loadLearningRecords()[String(currentWord.id)]),level=getMasteryLevelFromScore(score);
+return level==='red'?'bg-rose-500':level==='yellow'?'bg-amber-400':level==='green'?'bg-emerald-400':level==='blue'?'bg-blue-400':'bg-gray-600';
+})()}`}></span>
+</span>  
 <button onClick={e=>{e.stopPropagation();speakWord(currentWord.en||currentWord.word)}} className="ml-1 px-2.5 py-1 bg-indigo-900/40 hover:bg-indigo-900/70 text-indigo-300 rounded-lg text-xs flex items-center gap-1 border border-indigo-700/50 transition-colors" title="發音 (Pronunciation)">🔊 發音</button>  
 </div>  
 </div>  
@@ -495,7 +608,7 @@ return <label key={grp} className="flex items-center gap-2 text-xs text-gray-300
 </button>  
 <button type="button" onClick={()=>setReviewModeType('endless')} className={`p-3 rounded-xl border text-left transition-all ${reviewModeType==='endless'?'bg-indigo-950/80 border-indigo-500 text-white shadow-md':'bg-gray-900/60 border-gray-800 text-gray-400 hover:bg-gray-900'}`}>  
 <div className="text-xs font-bold text-indigo-300 mb-1">♾️️ 無盡循環模式</div>  
-<div className="text-[11px] text-gray-400 leading-normal">打亂排序，字卡將持續循環重覆出現，適合無限刷題。</div>  
+<div className="text-[11px] text-gray-400 leading-normal">每次從整個題庫重新隨機抽卡；答錯、熟練度低、越久沒複習的單字會提高出現機率，單張卡可重複出現。</div>  
 </button>  
 </div>  
 </div>  
@@ -568,7 +681,7 @@ return <label key={grp} className="flex items-center gap-2 text-xs text-gray-300
 </div>  
 <div className="h-2 w-full bg-gray-800 rounded-full mb-2 overflow-hidden"><div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 ease-out" style={{width:`${progressPercentage}%`}}></div></div>  
 <div className="flex justify-between items-center text-xs text-gray-400 font-medium">  
-<span>{reviewModeType==='single'?`進度 (${reviewIndex+1} / ${reviewQueue.length})`:`已完成 ${reviewCompletedCount} 次 (當前第 ${reviewIndex+1} / ${reviewQueue.length} 張)`}</span>  
+<span>{reviewModeType==='single'?`進度 (${reviewIndex+1} / ${reviewQueue.length})`:`已回答 ${reviewCompletedCount} 次（依遺忘程度與記憶穩定度動態抽卡）`}</span>  
 <div className="flex items-center gap-2 font-mono text-[11px]">  
 <span title="陌生"><strong className="text-rose-400">🔴 {stats.red}</strong></span>  
 <span title="生疏"><strong className="text-amber-400">🟡 {stats.yellow}</strong></span>  
