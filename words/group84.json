@@ -161,4 +161,303 @@
         "root": "sparkle + -ing (形容詞字尾)",
         "mem": "sparkling water 就是氣泡水，像火花般閃亮發泡的。"
       }
+      
+  {
+    "id": 4168,
+    "en": "sparkling", 
+    "pos": "adj.",
+    "zh": "迸出火花的；閃閃發光的",
+    "ex": "The diamond is sparkling on my finger.<br>鑽石在我的手指上，閃閃發光。",
+    "root": "spark（火花）+ -le（表示細微、反覆動作）→ sparkle（閃爍）+ -ing",
+    "mem": "sparkling 就是 spark（火花）不斷閃動的樣子。想像手上的鑽石像小火花一樣不停閃爍，因此 sparkling＝閃爍光的。"
+  },
+  {
+    "id": 4169,
+    "en": "spear",
+    "pos": "n.",
+    "zh": "矛",
+    "ex": "Spears are a good tool for the aboriginals.<br>矛是原住民的一個很好的工具。",
+    "root": "源自古英語 spere，意為「矛、長矛」",
+    "mem": "spear 聽起來像「斯皮爾」；想像古代戰士手拿長矛向前刺，spear＝矛。"
+  },
+  {
+    "id": 4170,
+    "en": "special",
+    "pos": "adj./n.",
+    "zh": "特別的；專門的；特價品；特價",
+    "ex": "I want to buy a gift for my granddaughter. Can you suggest me something special?<br>我想買禮物給孫女。你能建議我一些特別的嗎？",
+    "root": "源自拉丁語 specialis，來自 species（種類、外觀），原意為「特定的、特殊的」",
+    "mem": "special 可想成「特別挑出來」的東西：不是普通的一件，而是從一大堆東西中特別選出的，所以 special＝特別的、特殊的。"
+  },
+  {
+    "id": 4171,
+    "en": "specialist",
+    "pos": "n.",
+    "zh": "專家",
+    "ex": "I want to be a specialist in the science fiction.<br>我想變成一位科幻小說的專家。",
+    "root": "special（特殊的、專門的）+ -ist（表示從事某專業的人）",
+    "mem": "specialist 就是「special＋ist」：某個領域特別專精的人，就是 specialist＝專家。"
+  },
+  {
+    "id": 4172,
+    "en": "specialize",
+    "pos": "v.",
+    "zh": "專攻；擅長",
+    "ex": "My linguistic professor specializes in semantics.<br>我的語言學教授，專攻語意學。",
+    "root": "special（專門的）+ -ize（使成為……）→ 專門從事某領域",
+    "mem": "specialize 就是把自己的能力集中到一個 special 領域：例如教授專門研究語意學，因此 specialize＝專攻、擅長。"
+  },
+  {
+    "id": 4173,
+    "en": "specially",
+    "pos": "adv.",
+    "zh": "特地；特別地",
+    "ex": "I specially like to collect the stamps issued fifty years ago.<br>我特別喜歡收集五十年前發行的郵票。",
+    "root": "special（特別的）+ -ly（副詞字尾）→ 以特別的方式",
+    "mem": "specially 就是 special＋-ly：做某件事不是隨便做，而是「特別地、特地」去做，因此 specially＝特地；特別地。"
+  },
+  {
+    "id": 4174,
+    "en": "specialty",
+    "pos": "n.",
+    "zh": "特產；名產；招牌菜",
+    "ex": "You can get a special discount if you go to the specialty store.<br>你可以得到特別的折扣，如果你來到特約商店。",
+    "root": "special（特殊的）+ -ty（表示性質或狀態的名詞字尾）",
+    "mem": "specialty 就是某個地方或店家「特別拿手」的東西：可能是當地名產，也可能是餐廳最拿手的招牌菜。"
+  },
+  {
+    "id": 4175,
+    "en": "species",
+    "pos": "n.",
+    "zh": "種類；物種",
+    "ex": "Fire ant is an invasive species and it causes much damage to the environment.<br>紅火蟻是種有侵略性的物種，會對環境造成損害。",
+    "root": "源自拉丁語 species「種類、外觀」，與 specere「看」有關",
+    "mem": "species 可以想成「看起來分成不同類型」：把生物依照特徵分類，就會形成不同 species＝種類、物種。"
+  },
+  {
+    "id": 4176,
+    "en": "specific",
+    "pos": "adj.",
+    "zh": "詳細而精確的",
+    "ex": "Can you tell me more specific evidence?<br>你可以告訴我更詳細的證據嗎？",
+    "root": "spec（看）+ -ific（使成為……的）→ 能被清楚看出的、明確的",
+    "mem": "specific 和「看」有關：把細節看清楚，才能說得精確。想像老師追問「再具體一點！」，就是要更 specific。"
+  },
+  {
+    "id": 4177,
+    "en": "spectacle",
+    "pos": "n.",
+    "zh": "景物（象）；壯觀",
+    "ex": "I was amazed by the spectacle view of Grand Canyon when I visited there first time.<br>我第一次造訪被美國大峽谷使我吃驚的景色給震驚。",
+    "root": "spect（看）+ -acle（表示事物的字尾）→ 值得觀看的事物",
+    "mem": "spectacle 和 spectate（觀看）同源：一個值得大家停下來觀看的巨大景象，就是 spectacle＝壯觀的景物、景象。"
+  },
+  {
+    "id": 4178,
+    "en": "spectacles",
+    "pos": "n.pl.",
+    "zh": "眼鏡",
+    "ex": "My brother broke my spectacles, and then he was scolded by my mother soon after.<br>我弟弄壞了我的眼鏡之後不久就被我媽媽罵了一頓。",
+    "root": "spectacle（可觀看的東西）→ spectacles；早期眼鏡被視為幫助觀看的工具",
+    "mem": "spectacles 和「看」的 spect 有關：眼鏡是幫助我們看清楚東西的工具，因此 spectacles＝眼鏡。"
+  },
+  {
+    "id": 4179,
+    "en": "spectacular",
+    "pos": "adj./n.",
+    "zh": "場上壯觀的；轟動一時的；盛大場面；大卡司的電視；節目",
+    "ex": "Astronomical observations lead to spectacular discoveries in space.<br>天文觀測促進了噴為觀止的太空發現。",
+    "root": "spect（看）+ -acular（具有……性質的）→ 值得觀看、令人驚嘆的",
+    "mem": "spectacular 就是讓人「看了驚嘆」的東西：像大型表演、壯觀景象一出現，所有人都忍不住盯著看，因此＝壯觀的、轟動的。"
+  },
+  {
+    "id": 4180,
+    "en": "spectator",
+    "pos": "n.",
+    "zh": "觀眾；旁觀者",
+    "ex": "The spectators cheered loudly after Wang Chien-ming made a perfect home run.<br>在王建民打出一支漂亮的全壘打後得到了全場大眾的歡呼。",
+    "root": "spect（看）+ -ator（做……的人）→ 觀看的人",
+    "mem": "spectator 就是 spect（看）＋-ator（做某事的人）：坐在場邊看比賽、替選手加油的人，就是 spectator＝觀眾、旁觀者。"
+  },
+  {
+    "id": 4181,
+    "en": "speech",
+    "pos": "n.",
+    "zh": "話語；言辭",
+    "ex": "One of the foundations of democracy is freedom of speech.<br>民主基礎之一就是言論自由。",
+    "root": "源自古英語 spæc，與 speak（說話）同源",
+    "mem": "speech 就是 speak（說話）所產生的「話語」：一個人把想法說出來，就形成 speech＝言論、言辭。"
+  },
+  {
+    "id": 4182,
+    "en": "speed",
+    "pos": "n./v.",
+    "zh": "速度；疾馳而過；超速",
+    "ex": "Speed was a variable in the experiment.<br>速度在這個實驗中是個變因。",
+    "root": "源自古英語 spēd，原有「成功、繁榮、快速」等意思，後發展出「速度」之義",
+    "mem": "speed 就是「快」的概念：車子 speed up 後迅速前進；因此 speed＝速度，也可作動詞表示疾馳、超速。"
+  },
+  {
+    "id": 4183,
+    "en": "speedy",
+    "pos": "adj.",
+    "zh": "快速的",
+    "ex": "We got a speedy refused answer after asking her weight.<br>問了她體重之後我們得到了一個迅速的拒絕答案。",
+    "root": "speed（速度）+ -y（具有……性質的）→ 具有速度的",
+    "mem": "speedy 就是 speed＋-y：速度很快、動作很迅速，就是 speedy＝快速的。"
+  },
+
+  {
+    "id": 4184,
+    "en": "spell",
+    "pos": "n./v.",
+    "zh": "詛咒；拼寫",
+    "ex": "The Sleeping Beauty is under the spell of the bad witch, so she has slept for 100 years long.<br>因為睡美人被壞巫婆詛咒，所以睡了一百年之久。",
+    "root": "spell 原與古英語「說、講述」有關；「咒語」義指說出的神秘話語，「拼寫」義則指逐字說出字母。",
+    "mem": "spell 有兩個常見意思：把字母一個個「說出來」是拼寫；巫師念出神秘的話語來施法，就是 spell＝咒語、詛咒。"
+  },
+  {
+    "id": 4185,
+    "en": "spellbound",
+    "pos": "adj.",
+    "zh": "著迷(魔)的；身不由己的",
+    "ex": "A lot of my male friends are spellbound by the adult video which they are forbidden to watch.<br>我很多男性朋友都著迷於18禁的成人的影片。",
+    "root": "spell（咒語、魔法）+ bound（被束縛的）→ 被魔法束縛住",
+    "mem": "spellbound 就是被 spell（魔法）bound（綁住）：像中了魔法一樣，注意力完全被某件事吸住，因此＝著迷的、身不由己的。"
+  },
+  {
+    "id": 4186,
+    "en": "spelling",
+    "pos": "n.",
+    "zh": "拼字",
+    "ex": "Your spelling always confuses the one who has to check your homework.<br>你的拼字總是混淆必須幫你改作業的人。",
+    "root": "spell（拼寫）+ -ing（表示動作或過程）",
+    "mem": "spelling 就是 spell（拼寫）＋-ing：把一個字的字母一個個拼出來的動作，就是 spelling＝拼字。"
+  },
+  {
+    "id": 4187,
+    "en": "sphere",
+    "pos": "n.",
+    "zh": "行星；範圍",
+    "ex": "Although she has no sense of art, she is very outstanding in business sphere.<br>雖然她沒有藝術方面的才華，但是她在商業這方面很成功。",
+    "root": "源自希臘語 sphaira，意為「球、球體」",
+    "mem": "sphere 想成一個巨大的「球形範圍」：行星本身接近球體，而一個人的活動也可以有自己的「範圍」，所以 sphere＝行星、範圍。"
+  },
+  {
+    "id": 4188,
+    "en": "spice",
+    "pos": "n.",
+    "zh": "趣味；調味料",
+    "ex": "Turmeric is a yellow spice that the Indians use to flavor their food.<br>薑黃是一種印度人用來添加食物風味的黃色香料。",
+    "root": "源自拉丁語 species「種類、外觀」，後經古法語 espice，指「香料」",
+    "mem": "spice 就像料理中的「香料」：加入一點 spice，食物會更有味道；延伸到生活中，加入趣味也會讓事情更有味道，因此 spice＝調味料、趣味。"
+  },
+  {
+    "id": 4189,
+    "en": "spill",
+    "pos": "v./n.",
+    "zh": "濺出；溢出；溢出物",
+    "ex": "Oil spill is pollutant to marine areas and coastal waters.<br>漏油對海洋及珊瑚礁水域造成污染。",
+    "root": "源自古英語 spillan，意為「摧毀、流出、溢出」",
+    "mem": "spill 想成「手一滑，液體全部潑出去」：水、油或飲料從容器裡流出，就是 spill＝濺出、溢出；流出的東西則是 spill＝溢出物。"
+  },
+  {
+    "id": 4190,
+    "en": "spin",
+    "pos": "v.",
+    "zh": "旋轉",
+    "ex": "The ballerina spins on their toes which makes my head spinning with their dance.<br>芭蕾舞伶踮起腳尖旋轉的舞步讓我的頭也跟著暈了起來。",
+    "root": "源自古英語 spinnan，意為「紡線、旋轉」",
+    "mem": "spin 就像紡紗時線軸不停轉動；芭蕾舞者也可以原地不停旋轉，因此 spin＝旋轉。"
+  },
+  {
+    "id": 4191,
+    "en": "spine",
+    "pos": "n.",
+    "zh": "脊椎骨",
+    "ex": "Human is kind of a creature with spine to stand straightly.<br>人類是一種有脊椎骨可以站得直挺挺的生物。",
+    "root": "源自拉丁語 spina，意為「刺、荊棘、脊柱」",
+    "mem": "spine 可以想成背部中央一根像「刺」一樣的骨頭：它支撐身體、讓人能站直，因此 spine＝脊椎骨。"
+  },
+  {
+    "id": 4192,
+    "en": "spiral",
+    "pos": "adj./n./v.",
+    "zh": "螺旋形的；螺旋狀；不斷地增加或減少；螺旋上升或下降",
+    "ex": "It makes me so dizzy to climb the kind of spiral staircase.<br>爬那種螺旋樓梯會讓我覺得暈眩。",
+    "root": "源自拉丁語 spira，意為「螺旋、盤繞」",
+    "mem": "spiral 就是「繞著中心一圈圈前進」：螺旋樓梯一路繞著往上，數值也可以 spiral upward 或 downward，因此有螺旋、不斷增加或減少等意思。"
+  },
+  {
+    "id": 4193,
+    "en": "spiraling",
+    "pos": "adj.",
+    "zh": "不斷增加的",
+    "ex": "The spiraling homework and tests really make me almost breathless.<br>不斷增加的功課和考試讓我幾乎窒息。",
+    "root": "spiral（螺旋、持續增加或減少）+ -ing（形成形容詞）",
+    "mem": "spiraling 就像螺旋樓梯越繞越高：數量不斷往上增加，就像功課和考試越來越多，因此 spiraling＝不斷增加的。"
+  },
+  {
+    "id": 4194,
+    "en": "spirit",
+    "pos": "n.",
+    "zh": "精神",
+    "ex": "The spirit of dedicating to children without return makes every mother greater.<br>為孩子付出不求回報的精神讓每個母親顯得偉大。",
+    "root": "源自拉丁語 spiritus「呼吸、氣息、精神」，與 spirare「呼吸」有關",
+    "mem": "spirit 原本和「呼吸、生命氣息」有關：一個人的精神就像內在的一口氣，支撐著他繼續前進，因此 spirit＝精神。"
+  },
+  {
+    "id": 4195,
+    "en": "spiritual",
+    "pos": "n./adj.",
+    "zh": "黑人聖歌；心靈的；精神上的",
+    "ex": "Religious belief is a good spiritual way to rely on when under such a great pressure.<br>當一個人處在巨大壓力下的時候，宗教信仰是一個不錯的依靠。",
+    "root": "spirit（精神、心靈）+ -ual（……的）→ 與精神或心靈有關的",
+    "mem": "spiritual 就是 spirit＋-ual：不是外在物質，而是關於人的內心、精神層面的事，因此 spiritual＝心靈的、精神上的。"
+  },
+  {
+    "id": 4196,
+    "en": "spiritually",
+    "pos": "adv.",
+    "zh": "精神上地；心靈地",
+    "ex": "I spiritually prayed that my friend won’t be flunked.<br>我精神上幫我朋友祈禱她不要被當掉。",
+    "root": "spiritual（心靈的、精神上的）+ -ly（副詞字尾）",
+    "mem": "spiritually 就是 spiritual＋-ly：把行動放在精神、心靈層面進行，例如從心裡為朋友祈禱。"
+  },
+  {
+    "id": 4197,
+    "en": "splash",
+    "pos": "n./v.",
+    "zh": "水飛濺(聲)；飛濺",
+    "ex": "The three boys jumped into the water pool with a splash.<br>那三個男孩與一聲跳進游泳池裡。",
+    "root": "源自模仿水花飛濺聲的擬聲語",
+    "mem": "splash 就是水「啪啦！」一聲濺開的畫面：跳進水池時水花四處飛，就是 splash＝飛濺、水花飛濺聲。"
+  },
+  {
+    "id": 4198,
+    "en": "splashed",
+    "pos": "adj.",
+    "zh": "飛濺的",
+    "ex": "The juice was splashed everywhere when the glass fell down the table.<br>玻璃杯從桌上掉落時，果汁飛濺的到處都是。",
+    "root": "splash（飛濺）+ -ed（表示已發生或具有某種狀態）",
+    "mem": "splashed 就是 splash 發生後的狀態：果汁「啪」地四處飛濺，最後到處都是，因此 splashed＝飛濺的。"
+  },
+  {
+    "id": 4199,
+    "en": "splatter",
+    "pos": "v.",
+    "zh": "使(血肉)爆飛；使飛濺",
+    "ex": "The unknown liquid splattered out of the beaker after a strange explosion in my chemistry experiment class today.<br>今天在我的化學實驗課上，未知的液體在一場奇怪的爆炸後飛濺出燒杯。",
+    "root": "splat（啪的一聲濺落）+ -ter（表示反覆或分散動作）",
+    "mem": "splatter 比 splash 更有「四處亂濺」的感覺：液體受到衝擊後啪地散得到處都是，因此 splatter＝使飛濺。"
+  },
+  {
+    "id": 4200,
+    "en": "splendid",
+    "pos": "adj.",
+    "zh": "壯麗的；漂亮的",
+    "ex": "",
+    "root": "源自拉丁語 splendidus，來自 splendere「發光、閃耀」→ 光彩奪目的",
+    "mem": "splendid 和「閃耀」有關：想像一個場面光彩奪目、美得讓人驚嘆，因此 splendid＝壯麗的、漂亮的。"
+  }
  ]
