@@ -114,16 +114,16 @@ useEffect(()=>{
   let cancelled=false;
   const loadAllPlus=async()=>{
     try{
-      const manifestResponse=await fetch('./books/allplus/groups.json',{cache:'no-store'});
-      if(!manifestResponse.ok)throw new Error('找不到 books/allplus/groups.json');
+      const manifestResponse=await fetch('./allplus/groups.json',{cache:'no-store'});
+      if(!manifestResponse.ok)throw new Error('找不到 allplus/groups.json');
       const manifest=await manifestResponse.json();
       const groupEntries=Array.isArray(manifest)?manifest:(Array.isArray(manifest.groups)?manifest.groups:[]);
       const results=await Promise.all(groupEntries.map(async(entry,index)=>{
         const file=typeof entry==='string'?entry:entry.file;
         const groupName=typeof entry==='string'?entry.replace(/\.json$/i,''):(entry.name||entry.group||entry.file?.replace(/\.json$/i,'')||`All+ ${String(index+1).padStart(2,'0')}`);
         if(!file)return [];
-        const response=await fetch(`./books/allplus/${file}`,{cache:'no-store'});
-        if(!response.ok)throw new Error(`找不到 books/allplus/${file}`);
+        const response=await fetch(`./allplus/${file}`,{cache:'no-store'});
+        if(!response.ok)throw new Error(`找不到 allplus/${file}`);
         const data=await response.json();
         if(!Array.isArray(data))throw new Error(`${file} 必須是 JSON 陣列`);
         return data.map((word,wordIndex)=>({...word,id:word.id??`${groupName}-${wordIndex+1}`,group:word.group||groupName}));
