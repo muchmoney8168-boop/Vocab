@@ -1,1 +1,38 @@
-
+[
+  {
+    "id": 4151,
+    "en": "sore",
+    "pos": "adj.",
+    "zh": "疼痛的",
+    "ex": "Poor girl! It must be extreme sore. Be brave!<br>可憐的女孩，一定很痛吧。勇敢一點喔。",
+    "root": "古英語 sār（疼痛的、受傷的）。",
+    "mem": "Sore 聯想 sore spot（痛處）：一碰到痛處就痛得縮手，sore＝疼痛的。"
+  },
+  {
+    "id": 4152,
+    "en": "sorrow",
+    "pos": "n./v.",
+    "zh": "悲傷",
+    "ex": "I don't know how to throw away my sorrow; maybe I just keep thinking too much.<br>我不知道如何拋棄我的煩惱，或許我只是想太多。",
+    "root": "古英語 sorg（憂慮、悲傷）。",
+    "mem": "把 sorrow 想成心裡沉甸甸的「愁」：愁緒滿懷，就是 sorrow（悲傷）。"
+  },
+  {
+    "id": 4153,
+    "en": "sorrowful",
+    "pos": "adj.",
+    "zh": "悲傷的",
+    "ex": "Nobody can understand my sorrowful feeling.<br>沒人能了解我的悲傷的心情。",
+    "root": "sorrow（悲傷）+ -ful（充滿……的）。",
+    "mem": "心裡裝滿 sorrow（悲傷），整個人都 sorrowful（悲傷的）。"
+  },
+  {
+    "id": 4154,
+    "en": "sort",
+    "pos": "n./v.",
+    "zh": "種類 / 把…分類",
+    "ex": "All sorts of the organic food are available in that supermarket.<br>所有種類的有機食物，都可在那家超市買到。",
+    "root": "源自拉丁語 sors（份額、命運），後發展出「種類」之意。",
+    "mem": "把紅色牌、藍色牌分成不同堆：每一堆是一種 sort，分堆就是 sort（分類）。"
+  }
+]
