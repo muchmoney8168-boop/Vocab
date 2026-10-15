@@ -28,82 +28,15 @@ const DEFAULT_WORDS=[
 ];  
   
 const LEARNING_STORAGE_KEY="vocab_learning_records_v1";
-const EMPTY_LEARNING_RECORD={
-red:0,yellow:0,green:0,blue:0,mastery:null,masteryScore:null,
-yellowStar:false,blueStar:false,lastReviewedAt:null,
-successStreak:0,failureStreak:0,reviewCount:0
-};
-const loadLearningRecords=()=>{try{const raw=localStorage.getItem(LEARNING_STORAGE_KEY);return raw?JSON.parse(raw)||{}:{};}catch(e){console.error("讀取學習紀錄失敗：",e);return{};}};
+const BOOKS_STORAGE_KEY="vocab_bookshelf_v1";
+const BUILTIN_BOOK_ID="core4500";
+const BUILTIN_BOOK={id:BUILTIN_BOOK_ID,title:"核心 4500 單字",subtitle:"內建單字書・90 組",icon:"📘",color:"from-indigo-600 to-blue-800",builtin:true,createdAt:0};
+const loadBooks=()=>{try{const raw=JSON.parse(localStorage.getItem(BOOKS_STORAGE_KEY)||"[]");return [BUILTIN_BOOK,...(Array.isArray(raw)?raw.filter(b=>b&&b.id!==BUILTIN_BOOK_ID):[])];}catch(e){return [BUILTIN_BOOK];}};
+const saveBooks=books=>{try{localStorage.setItem(BOOKS_STORAGE_KEY,JSON.stringify(books.filter(b=>b.id!==BUILTIN_BOOK_ID)));}catch(e){console.error("儲存書櫃失敗",e);}};
+const EMPTY_LEARNING_RECORD={red:0,yellow:0,green:0,blue:0,mastery:null,yellowStar:false,blueStar:false,lastReviewedAt:null};
+const loadLearningRecords=()=>{try{const raw=localStorage.getItem(LEARNING_STORAGE_KEY);const records=raw?JSON.parse(raw)||{}:{};let migrated=false;Object.keys(records).forEach(key=>{if(!key.includes("::")){records[`${BUILTIN_BOOK_ID}::${key}`]=records[key];delete records[key];migrated=true;}});if(migrated)localStorage.setItem(LEARNING_STORAGE_KEY,JSON.stringify(records));return records;}catch(e){console.error("讀取學習紀錄失敗：",e);return{};}};
 const saveLearningRecords=records=>{try{localStorage.setItem(LEARNING_STORAGE_KEY,JSON.stringify(records));}catch(e){console.error("儲存學習紀錄失敗：",e);}};
 const normalizeLearningRecord=record=>({...EMPTY_LEARNING_RECORD,...(record||{})});
-
-// 0~100 的連續熟練度；會保留前幾次回答的影響。
-const ratingScore={red:0,yellow:35,green:70,blue:100};
-const getMasteryScore=record=>{
-const r=normalizeLearningRecord(record);
-if(Number.isFinite(Number(r.masteryScore)))return Math.max(0,Math.min(100,Number(r.masteryScore)));
-const total=['red','yellow','green','blue'].reduce((sum,k)=>sum+(Number(r[k])||0),0);
-if(total>0)return Math.round(((Number(r.red)||0)*0+(Number(r.yellow)||0)*35+(Number(r.green)||0)*70+(Number(r.blue)||0)*100)/total);
-return null;
-};
-const getMasteryLevelFromScore=score=>{
-if(score===null||score===undefined||Number.isNaN(Number(score)))return null;
-if(score<25)return 'red';
-if(score<55)return 'yellow';
-if(score<80)return 'green';
-return 'blue';
-};
-const getDaysSinceReview=lastTime=>{
-if(!lastTime)return 999;
-return Math.max(0,(Date.now()-lastTime)/(1000*60*60*24));
-};
-
-// 混合式間隔重複模型：用遺忘曲線估計「現在有多需要複習」，再把需求度轉成機率。
-const getStabilityDays=record=>{
-const r=normalizeLearningRecord(record);
-const s=Number(r.stabilityDays);
-if(Number.isFinite(s)&&s>0)return Math.min(365,s);
-const score=getMasteryScore(r),reviews=Number(r.reviewCount)||0;
-if(score===null)return 0;
-return Math.max(0.25,0.5+(score/100)*Math.min(6,1+reviews*0.5));
-};
-const getDifficultyFactor=record=>{
-const d=Number(normalizeLearningRecord(record).difficulty);
-return Number.isFinite(d)?Math.max(0.65,Math.min(1.45,d)):1;
-};
-const getRecallProbability=(record,now=Date.now())=>{
-const r=normalizeLearningRecord(record);
-if(!r.lastReviewedAt||getStabilityDays(r)<=0)return 0;
-const days=Math.max(0,(now-r.lastReviewedAt)/(1000*60*60*24));
-return Math.max(0,Math.min(1,Math.exp(-days/getStabilityDays(r))));
-};
-const getInfiniteWeight=(word,records)=>{
-const r=normalizeLearningRecord(records[String(word.id)]);
-const reviews=Number(r.reviewCount)||0;
-const recall=getRecallProbability(r);
-const forgetting=reviews===0?1:1-recall;
-const difficulty=getDifficultyFactor(r);
-const failureStreak=Math.min(Number(r.failureStreak)||0,6);
-const successStreak=Math.min(Number(r.successStreak)||0,8);
-const forgettingNeed=Math.pow(Math.max(0.02,forgetting),1.35);
-const newCardBoost=reviews===0?3.2:1;
-const failureBoost=1+failureStreak*0.60;
-const successReduction=1/(1+successStreak*0.08);
-const difficultyBoost=0.65+0.80*difficulty;
-const exploration=0.12;
-return Math.max(0.02,exploration+newCardBoost*forgettingNeed*failureBoost*successReduction*difficultyBoost);
-};
-const weightedRandomWord=(pool,records,currentId)=>{
-if(!pool.length)return null;
-let candidates=pool;
-if(pool.length>1){const withoutCurrent=pool.filter(w=>String(w.id)!==String(currentId));if(withoutCurrent.length)candidates=withoutCurrent;}
-const weights=candidates.map(w=>getInfiniteWeight(w,records));
-const total=weights.reduce((a,b)=>a+b,0);
-if(!(total>0))return candidates[Math.floor(Math.random()*candidates.length)];
-let r=Math.random()*total;
-for(let i=0;i<candidates.length;i++){r-=weights[i];if(r<=0)return candidates[i];}
-return candidates[candidates.length-1];
-};
 const buildLearningState=records=>{const starred={},mastery={},lastReviewedAt={},stats={red:0,yellow:0,green:0,blue:0};Object.entries(records).forEach(([id,raw])=>{const r=normalizeLearningRecord(raw);if(r.yellowStar||r.blueStar)starred[id]={yellow:!!r.yellowStar,blue:!!r.blueStar};if(r.mastery)mastery[id]=r.mastery;if(r.lastReviewedAt)lastReviewedAt[id]=r.lastReviewedAt;stats.red+=Number(r.red)||0;stats.yellow+=Number(r.yellow)||0;stats.green+=Number(r.green)||0;stats.blue+=Number(r.blue)||0;});return{starred,mastery,lastReviewedAt,stats};};
 
 function FlashcardApp(){  
@@ -121,7 +54,13 @@ const bankLoadRequestRef=useRef(0);
 const reviewStartRequestRef=useRef(0);  
 const fileInputRef=useRef(null);  
   
-const[mainMode,setMainMode]=useState('bank');  
+const[mainMode,setMainMode]=useState('shelf');
+const[books,setBooks]=useState(()=>loadBooks());
+const[activeBookId,setActiveBookId]=useState(BUILTIN_BOOK_ID);
+const[bookManagerId,setBookManagerId]=useState(null);
+const activeBook=books.find(b=>b.id===activeBookId)||BUILTIN_BOOK;
+const learningKey=id=>`${activeBookId}::${String(id)}`;
+const bookGroups=activeBook.builtin?Array.from({length:90},(_,i)=>`Group ${i+1}`):[...new Set(words.map(w=>w.group||'Group 1'))];  
 const[selectedBankGroup,setSelectedBankGroup]=useState('ALL');  
 const[bankStarFilter,setBankStarFilter]=useState({yellow:false,blue:false});  
 const[selectedReviewGroups,setSelectedReviewGroups]=useState([]);  
@@ -162,31 +101,7 @@ return parsed.filter(w=>w.en);
 return null;  
 };  
   
-useEffect(()=>{  
-let cancelled=false;  
-const loadVocabData=async()=>{  
-setIsLoading(true);  
-try{  
-const data=await fetchGroupData(1);  
-if(cancelled)return;  
-if(data.length){  
-setWords(data);  
-setNotice('成功自動載入單字檔：Group 1');  
-}else{  
-setWords(DEFAULT_WORDS);  
-setNotice('Group 1 沒有單字，使用預設資料');  
-}  
-}catch(e){  
-if(!cancelled){  
-console.error('載入 Group 1 失敗：',e);  
-setWords(DEFAULT_WORDS);  
-setNotice('無法載入 Group 1，使用預設資料');  
-}  
-}finally{if(!cancelled)setIsLoading(false)}  
-};  
-loadVocabData();  
-return()=>{cancelled=true};  
-},[]);  
+useEffect(()=>{setIsLoading(false);},[]);  
   
 const availableGroups=Array.from({length:90},(_,i)=>`Group ${i+1}`);  
   
@@ -255,7 +170,7 @@ return null;
 const bankFilteredWords=words.filter(word=>{  
 const grp=word.group||"Group 84";  
 if(selectedBankGroup!=='ALL'&&grp!==selectedBankGroup)return false;  
-const star=starredWords[word.id]||{yellow:false,blue:false};  
+const star=starredWords[learningKey(word.id)]||{yellow:false,blue:false};  
 if(bankStarFilter.yellow&&!star.yellow)return false;  
 if(bankStarFilter.blue&&!star.blue)return false;  
 return true;  
@@ -270,11 +185,8 @@ setIsFlipped(false);setTimeout(()=>setCurrentIndex(prev=>prev+1),120);
 if(reviewIndex<reviewQueue.length-1){  
 setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);  
 }else if(reviewModeType==='endless'){  
-const nextWord=weightedRandomWord(reviewQueue,loadLearningRecords(),currentWord.id);
-if(nextWord){
-const nextIndex=reviewQueue.findIndex(w=>String(w.id)===String(nextWord.id));
-setIsFlipped(false);setTimeout(()=>setReviewIndex(nextIndex>=0?nextIndex:0),120);
-}  
+setReviewQueue([...reviewQueue].sort(()=>Math.random()-.5));  
+setIsFlipped(false);setTimeout(()=>setReviewIndex(0),120);  
 }  
 }  
 };  
@@ -292,11 +204,12 @@ const toggleFlip=()=>setIsFlipped(prev=>!prev);
 const toggleStar=(wordId,color)=>{
 if(wordId===undefined||wordId===null)return;
 setStarredWords(prev=>{
-const current=prev[wordId]||{yellow:false,blue:false},next={...current,[color]:!current[color]};
-const records=loadLearningRecords(),key=String(wordId);
+const key=learningKey(wordId);
+const current=prev[key]||{yellow:false,blue:false},next={...current,[color]:!current[color]};
+const records=loadLearningRecords();
 records[key]={...normalizeLearningRecord(records[key]),yellowStar:!!next.yellow,blueStar:!!next.blue};
 saveLearningRecords(records);
-return{...prev,[wordId]:next};
+return{...prev,[key]:next};
 });
 };  
   
@@ -337,10 +250,15 @@ parsedData=raw.map(item=>({...item,group:item.group||"Group 84"}));
 setNotice("❌ 檔案內容格式錯誤，請上傳 words.html 或合法 JSON 檔案。");return;  
 }  
 }  
-if(Array.isArray(parsedData)&&parsedData.length>0){  
-setWords(parsedData);setCurrentIndex(0);setIsFlipped(false);  
-setSelectedReviewGroups([...new Set(parsedData.map(w=>w.group||"Group 84"))]);  
-setNotice(`✅ 成功載入「${file.name}」，共 ${parsedData.length} 個單字！`);  
+if(Array.isArray(parsedData)&&parsedData.length>0){
+const normalized=parsedData.map((w,i)=>({...w,id:w.id??i+1,group:w.group||"Group 1"}));
+const id=`book_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+const title=file.name.replace(/\.(json|html?)$/i,"").replace(/[_-]+/g," ")||"匯入單字書";
+const book={id,title,subtitle:"自訂單字書",icon:"📗",color:"from-emerald-600 to-teal-800",builtin:false,words:normalized,createdAt:Date.now(),sourceName:file.name};
+setBooks(prev=>{const next=[...prev,book];saveBooks(next);return next;});
+setActiveBookId(id);setWords(normalized);setSelectedBankGroup('ALL');setCurrentIndex(0);setIsFlipped(false);
+setSelectedReviewGroups([...new Set(normalized.map(w=>w.group||"Group 1"))]);setMainMode('bank');
+setNotice(`✅ 已新增單字書「${title}」，共 ${normalized.length} 個單字！`);
 }else setNotice("❌ 檔案中未發現有效的單字資料。");  
 };  
 reader.readAsText(file);event.target.value='';  
@@ -348,56 +266,34 @@ reader.readAsText(file);event.target.value='';
   
 const handleRate=(level,currentWordId)=>{
 if(currentWordId!==undefined&&currentWordId!==null){
-const now=Date.now(),records=loadLearningRecords(),key=String(currentWordId),old=normalizeLearningRecord(records[key]);
-const oldScore=getMasteryScore(old),target=ratingScore[level];
-const nextScore=oldScore===null?target:Math.round(oldScore*0.65+target*0.35);
-const nextSuccess=(level==='green'||level==='blue')?(Number(old.successStreak)||0)+1:0;
-const nextFailure=(level==='red'||level==='yellow')?(Number(old.failureStreak)||0)+1:0;
-const oldStability=getStabilityDays(old);
-const stabilityBase={red:0.20,yellow:0.75,green:3,blue:7}[level];
-const stabilityMultiplier={red:0.25,yellow:0.80,green:1.65,blue:2.35}[level];
-let nextStability=oldStability>0?oldStability*stabilityMultiplier:stabilityBase;
-if(level==='red')nextStability=Math.min(nextStability,0.25);
-if(level==='yellow')nextStability=Math.min(nextStability,Math.max(0.5,oldStability||0.75));
-nextStability=Math.max(0.15,Math.min(365,nextStability));
-const oldDifficulty=Number.isFinite(Number(old.difficulty))?Number(old.difficulty):1;
-const difficultyDelta={red:0.14,yellow:0.06,green:-0.035,blue:-0.06}[level];
-const nextDifficulty=Math.max(0.65,Math.min(1.45,oldDifficulty+difficultyDelta));
-records[key]={...old,[level]:(Number(old[level])||0)+1,mastery:level,masteryScore:nextScore,lastReviewedAt:now,successStreak:nextSuccess,failureStreak:nextFailure,reviewCount:(Number(old.reviewCount)||0)+1,stabilityDays:nextStability,difficulty:nextDifficulty};
+const now=Date.now(),records=loadLearningRecords(),key=learningKey(currentWordId),old=normalizeLearningRecord(records[key]);
+records[key]={...old,[level]:(Number(old[level])||0)+1,mastery:level,lastReviewedAt:now};
 saveLearningRecords(records);
-setCardMastery(prev=>({...prev,[currentWordId]:level}));setLastReviewedAt(prev=>({...prev,[currentWordId]:now}));
+setCardMastery(prev=>({...prev,[learningKey(currentWordId)]:level}));setLastReviewedAt(prev=>({...prev,[learningKey(currentWordId)]:now}));
 }
 setStats(prev=>({...prev,[level]:prev[level]+1}));
-if(mainMode==='bank')handleNext();
-else if(mainMode==='review_active'){
-setReviewCompletedCount(prev=>prev+1);
-if(reviewModeType==='single'){
-if(reviewIndex<reviewQueue.length-1){
-setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);
-}else setMainMode('review_done');
-}else{
-const updatedRecords=loadLearningRecords();
-const nextWord=weightedRandomWord(reviewQueue,updatedRecords,currentWordId);
-if(nextWord){
-const nextIndex=reviewQueue.findIndex(w=>String(w.id)===String(nextWord.id));
-setIsFlipped(false);setTimeout(()=>setReviewIndex(nextIndex>=0?nextIndex:0),120);
-}
-}
-}
-};
-
+if(mainMode==='bank')handleNext();  
+else if(mainMode==='review_active'){  
+setReviewCompletedCount(prev=>prev+1);  
+if(reviewIndex<reviewQueue.length-1){  
+setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);  
+}else if(reviewModeType==='single')setMainMode('review_done');  
+else{  
+setReviewQueue([...reviewQueue].sort(()=>Math.random()-.5));  
+setIsFlipped(false);setTimeout(()=>setReviewIndex(0),120);  
+}  
+}  
+};  
+  
 const startReviewSession=async()=>{  
 if(selectedReviewGroups.length===0){  
 setNotice("⚠️ 請至少選擇一個複習組別！");return;  
 }  
   
-const groupNumbers=selectedReviewGroups.map(groupName=>Number(groupName.replace('Group ',''))).filter(number=>Number.isInteger(number)&&number>=1&&number<=90);  
-if(groupNumbers.length===0){  
-setNotice("⚠️ 沒有有效的複習組別！");return;  
-}  
-  
-const requestId=++reviewStartRequestRef.current;  
-const allReviewWords=await loadGroups(groupNumbers);  
+const groupNumbers=selectedReviewGroups.map(groupName=>Number(groupName.replace('Group ',''))).filter(number=>Number.isInteger(number)&&number>=1&&number<=90);
+if(activeBook.builtin&&groupNumbers.length===0){setNotice("⚠️ 沒有有效的複習組別！");return;}
+const requestId=++reviewStartRequestRef.current;
+const allReviewWords=activeBook.builtin?await loadGroups(groupNumbers):words.filter(word=>selectedReviewGroups.includes(word.group||"Group 1"));  
 if(requestId!==reviewStartRequestRef.current)return;  
 if(!Array.isArray(allReviewWords))return;  
   
@@ -407,18 +303,18 @@ if(!selectedReviewGroups.includes(grp))return false;
   
 const anyMasterySelected=Object.values(reviewMasteries).some(v=>v);  
 if(anyMasterySelected){  
-const wordMastery=cardMastery[word.id];  
+const wordMastery=cardMastery[learningKey(word.id)];  
 if(!wordMastery||!reviewMasteries[wordMastery])return false;  
 }  
   
 if(reviewStars.yellow||reviewStars.blue){  
-const starState=starredWords[word.id]||{yellow:false,blue:false};  
+const starState=starredWords[learningKey(word.id)]||{yellow:false,blue:false};  
 if(reviewStars.yellow&&!starState.yellow)return false;  
 if(reviewStars.blue&&!starState.blue)return false;  
 }  
   
 if(useDaysFilter&&reviewDaysInput>0){  
-const lastTime=lastReviewedAt[word.id];  
+const lastTime=lastReviewedAt[learningKey(word.id)];  
 if(lastTime){  
 const daysDiff=(Date.now()-lastTime)/(1000*60*60*24);  
 if(daysDiff<reviewDaysInput)return false;  
@@ -431,18 +327,10 @@ if(pool.length===0){
 setNotice("⚠️ 沒有符合篩選條件的單字，請調整設定後再試！");return;  
 }  
   
-if(!isInfiniteCount&&reviewCountInput>0)pool=[...pool].sort(()=>Math.random()-.5).slice(0,Number(reviewCountInput));
-else if(reviewModeType==='single')pool=[...pool].sort(()=>Math.random()-.5);
-
-if(reviewModeType==='endless'){
-const records=loadLearningRecords();
-const firstWord=weightedRandomWord(pool,records,null);
-const firstIndex=firstWord?pool.findIndex(w=>String(w.id)===String(firstWord.id)):0;
-setReviewQueue(pool);setReviewIndex(firstIndex>=0?firstIndex:0);
-}else{
-setReviewQueue(pool);setReviewIndex(0);
-}
-setReviewCompletedCount(0);setIsFlipped(false);
+pool=[...pool].sort(()=>Math.random()-.5);  
+if(!isInfiniteCount&&reviewCountInput>0)pool=pool.slice(0,Number(reviewCountInput));  
+  
+setReviewQueue(pool);setReviewIndex(0);setReviewCompletedCount(0);setIsFlipped(false);  
 setMainMode('review_active');  
 setNotice(`成功載入 ${selectedReviewGroups.length} 組，共 ${pool.length} 張複習卡！`);  
 };  
@@ -462,7 +350,7 @@ const totalBankCount=bankFilteredWords.length;
 const currentCardNumber=mainMode==='review_active'?reviewIndex+1:currentIndex+1;  
 const totalCardNumber=mainMode==='review_active'?reviewQueue.length:totalBankCount;  
 const progressPercentage=totalCardNumber>0?currentCardNumber/totalCardNumber*100:0;  
-const currentStarState=starredWords[currentWord.id]||{yellow:false,blue:false};  
+const currentStarState=starredWords[learningKey(currentWord.id)]||{yellow:false,blue:false};  
   
 const renderExample=exText=>{  
 if(!exText)return null;  
@@ -479,27 +367,7 @@ const renderCardHeader=()=>(
 <span className="text-xs text-gray-500 font-mono">#{currentWord.id||"N/A"}</span>  
 <div className="flex items-center gap-1.5">  
 <button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'yellow')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.yellow?'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-amber-400'}`} title="黃星星（不太記得）">★</button>  
-<button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'blue')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.blue?'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'}`} title="藍星星（不太記得部分字義）">★</button>
-<span className={`inline-flex items-center justify-center w-5 h-5 rounded-full border shadow-sm ${(()=>{
-const record=normalizeLearningRecord(loadLearningRecords()[String(currentWord.id)]);
-const reviewed=Number(record.reviewCount)>0 || !!record.lastReviewedAt;
-return reviewed?'border-gray-700 bg-gray-950/80':'border-gray-500 bg-gray-700/60';
-})()}`} title={(()=>{
-const record=normalizeLearningRecord(loadLearningRecords()[String(currentWord.id)]);
-const reviewed=Number(record.reviewCount)>0 || !!record.lastReviewedAt;
-if(!reviewed)return "尚未複習";
-const score=getMasteryScore(record);
-const level=getMasteryLevelFromScore(score);
-return `熟練度 ${Math.round(score)}/100 · ${level==='red'?'陌生':level==='yellow'?'生疏':level==='green'?'熟練':'精通'}`;
-})()}>
-<span className={`w-2.5 h-2.5 rounded-full ${(()=>{
-const record=normalizeLearningRecord(loadLearningRecords()[String(currentWord.id)]);
-const reviewed=Number(record.reviewCount)>0 || !!record.lastReviewedAt;
-if(!reviewed)return 'bg-gray-400';
-const score=getMasteryScore(record),level=getMasteryLevelFromScore(score);
-return level==='red'?'bg-rose-500':level==='yellow'?'bg-amber-400':level==='green'?'bg-emerald-400':level==='blue'?'bg-blue-400':'bg-gray-400';
-})()}`}></span>
-</span>  
+<button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'blue')}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.blue?'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'}`} title="藍星星（不太記得部分字義）">★</button>  
 <button onClick={e=>{e.stopPropagation();speakWord(currentWord.en||currentWord.word)}} className="ml-1 px-2.5 py-1 bg-indigo-900/40 hover:bg-indigo-900/70 text-indigo-300 rounded-lg text-xs flex items-center gap-1 border border-indigo-700/50 transition-colors" title="發音 (Pronunciation)">🔊 發音</button>  
 </div>  
 </div>  
@@ -509,21 +377,52 @@ return(
 <div className="min-h-screen flex flex-col max-w-lg mx-auto p-4 sm:p-6 pb-12">  
   
 <div className="flex items-center justify-between mb-3">  
-<h1 className="text-white font-bold text-lg tracking-wide">單字記憶卡片 App</h1>  
+<h1 className="text-white font-bold text-lg tracking-wide">{mainMode==='shelf'?'單字書櫃':activeBook.title}</h1>  
 <div className="flex gap-2">  
-<button onClick={()=>fileInputRef.current.click()} className="px-3 py-1.5 bg-[#1e2330] hover:bg-gray-800 border border-gray-700 rounded-full text-xs text-gray-200 flex items-center gap-1 active:scale-95 transition-all shadow">📂 上傳檔 (HTML/JSON)</button>  
+<button onClick={()=>setMainMode('shelf')} className="px-3 py-1.5 bg-[#1e2330] hover:bg-gray-800 border border-gray-700 rounded-full text-xs text-gray-200 flex items-center gap-1 active:scale-95 transition-all shadow">📚 書櫃</button>
+<button onClick={()=>fileInputRef.current.click()} className="px-3 py-1.5 bg-[#1e2330] hover:bg-gray-800 border border-gray-700 rounded-full text-xs text-gray-200 flex items-center gap-1 active:scale-95 transition-all shadow">＋ 新增書</button>  
 <input type="file" accept=".json,.html,.htm" ref={fileInputRef} onChange={handleFileUpload}/>  
 <button onClick={resetApp} className="px-3 py-1.5 bg-[#1e2330] hover:bg-gray-800 border border-gray-700 rounded-full text-xs text-gray-300 flex items-center gap-1 active:scale-95 transition-all shadow" title="重置進度">↺ 重置</button>  
 </div>  
 </div>  
   
-<div className="grid grid-cols-2 gap-2 p-1.5 bg-[#131825] border border-gray-800 rounded-2xl mb-4 shadow-md">  
+{mainMode!=='shelf'&&<div className="grid grid-cols-2 gap-2 p-1.5 bg-[#131825] border border-gray-800 rounded-2xl mb-4 shadow-md">  
 <button onClick={()=>{setMainMode('bank');setIsFlipped(false)}} className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${mainMode==='bank'?'bg-indigo-600 text-white shadow':'text-gray-400 hover:text-gray-200 hover:bg-gray-900/50'}`}>📖 單字庫模式</button>  
 <button onClick={()=>{if(mainMode!=='review_active')setMainMode('review_setup');setIsFlipped(false)}} className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${mainMode.startsWith('review')?'bg-indigo-600 text-white shadow':'text-gray-400 hover:text-gray-200 hover:bg-gray-900/50'}`}>🎯 複習模式</button>  
 </div>  
   
 {notice&&<div className="mb-4 p-3 bg-indigo-950/70 border border-indigo-800/80 rounded-xl text-indigo-200 text-xs flex justify-between items-center shadow"><span>{notice}</span><button onClick={()=>setNotice(null)} className="text-indigo-400 font-bold ml-2 hover:text-white">✕</button></div>}  
   
+{mainMode==='shelf'&&(
+<div className="space-y-5">
+  <section className="rounded-3xl p-6 border border-indigo-900/70 bg-gradient-to-br from-[#171d31] via-[#121827] to-[#0e1320] shadow-xl">
+    <div className="text-xs uppercase tracking-[0.25em] text-indigo-300 mb-2">YOUR VOCABULARY LIBRARY</div>
+    <h2 className="text-3xl font-black text-white mb-2">我的單字書櫃</h2>
+    <p className="text-sm text-gray-400 leading-relaxed">每一本單字書都有獨立的學習紀錄。把 4500 單字當作第一本，之後再加入其他字書。</p>
+    <button onClick={()=>fileInputRef.current.click()} className="mt-5 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg">＋ 匯入新單字書（JSON / HTML）</button>
+  </section>
+  <div className="flex items-center justify-between"><h3 className="font-bold text-white">書架 <span className="text-xs text-gray-500 ml-1">{books.length} 本</span></h3><span className="text-[11px] text-gray-500">點選書籍即可開始</span></div>
+  <div className="grid grid-cols-1 gap-3">
+  {books.map((book,index)=>{
+    const count=book.builtin?(book.id===activeBookId?words.length:4500):(book.words||[]).length;
+    const isCurrent=book.id===activeBookId;
+    return <article key={book.id} className="relative overflow-hidden rounded-2xl border border-gray-800 bg-[#131825] shadow-lg">
+      <div className={`absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b ${book.color||'from-indigo-600 to-blue-800'}`}></div>
+      <div className="p-4 pl-6 flex gap-4 items-center">
+        <div className={`w-16 h-20 shrink-0 rounded-lg bg-gradient-to-br ${book.color||'from-indigo-600 to-blue-800'} flex items-center justify-center text-3xl shadow-inner border border-white/10`}>{book.icon||'📘'}</div>
+        <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><h4 className="font-bold text-white truncate">{book.title}</h4>{book.builtin&&<span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">內建</span>}</div>
+          <p className="text-xs text-gray-400 mt-1">{book.subtitle||'自訂單字書'}</p><p className="text-[11px] text-gray-500 mt-2">{book.builtin?'90 組題庫，依檔案可用內容載入':`${count} 個單字`}</p>
+          <div className="flex gap-2 mt-3"><button onClick={async()=>{setActiveBookId(book.id);setCurrentIndex(0);setIsFlipped(false);setSelectedBankGroup(book.builtin?'Group 1':'ALL');setSelectedReviewGroups(book.builtin?['Group 1']:[...new Set((book.words||[]).map(w=>w.group||'Group 1'))]);if(book.builtin){setIsLoading(true);try{const data=await fetchGroupData(1);setWords(data);setNotice(`已開啟「${book.title}」`);}catch(e){setWords(DEFAULT_WORDS);setNotice('無法載入內建單字檔，已使用備用資料。')}finally{setIsLoading(false)}}else{setWords(book.words||[]);setNotice(`已開啟「${book.title}」`);}setMainMode('bank');}} className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">開始學習 →</button>
+          {!book.builtin&&<button onClick={()=>{if(!window.confirm(`確定要從書櫃刪除「${book.title}」？學習紀錄不會自動刪除。`))return;setBooks(prev=>{const next=prev.filter(b=>b.id!==book.id);saveBooks(next);return next;});if(activeBookId===book.id){setActiveBookId(BUILTIN_BOOK_ID);setMainMode('shelf');}}} className="px-3 py-2 rounded-lg bg-gray-900 border border-gray-700 text-gray-400 hover:text-rose-300 text-xs">移除</button>}</div>
+        </div>
+      </div>
+    </article>
+  })}
+  </div>
+  <p className="text-[11px] leading-relaxed text-gray-600">提示：匯入的單字書會保存在這台裝置的瀏覽器中。內建 4500 單字仍依賴原本的 ./words/groupXX.json 檔案資料夾。</p>
+</div>
+)}
+
 {mainMode==='bank'&&(  
 <div className="bg-[#131825] rounded-2xl p-4 mb-4 border border-gray-800 shadow-md space-y-3">  
 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-800/80 pb-3">  
@@ -532,17 +431,13 @@ return(
 <select value={selectedBankGroup} onChange={async e=>{  
 const value=e.target.value;setSelectedBankGroup(value);setCurrentIndex(0);  
 if(value==='ALL'){
-setIsLoading(true);
-try{
-const allData=await loadAllGroups();
-setWords(allData);
-setNotice(`已載入全部可用單字，共 ${allData.length} 個`);
-}catch(error){setNotice(`❌ 載入全部單字失敗：${error.message}`)}
-finally{setIsLoading(false)}
-}else await loadGroup(Number(value.replace('Group ','')));  
+if(!activeBook.builtin){setWords(activeBook.words||[]);setNotice(`已顯示「${activeBook.title}」全部單字，共 ${activeBook.words?.length||0} 個`);}
+else{setIsLoading(true);try{const allData=await loadAllGroups();setWords(allData);setNotice(`已載入全部可用單字，共 ${allData.length} 個`);}catch(error){setNotice(`❌ 載入全部單字失敗：${error.message}`)}finally{setIsLoading(false)}}
+}else if(!activeBook.builtin){setWords((activeBook.words||[]).filter(w=>(w.group||'Group 1')===value));}
+else await loadGroup(Number(value.replace('Group ','')));  
 }} className="bg-gray-900 border border-gray-700 text-indigo-300 text-xs rounded-lg px-2.5 py-1.5 font-semibold focus:outline-none focus:border-indigo-500">  
 <option value="ALL">全部組別 ({words.length})</option>  
-{availableGroups.map(grp=><option key={grp} value={grp}>{grp}</option>)}  
+{(activeBook.builtin?availableGroups:bookGroups).map(grp=><option key={grp} value={grp}>{grp}</option>)}  
 </select>  
 </div>  
   
@@ -575,14 +470,14 @@ finally{setIsLoading(false)}
 <div className="bg-[#131825] rounded-2xl p-5 border border-gray-800 shadow-xl space-y-5 mb-6 text-left">  
 <div className="border-b border-gray-800 pb-3 flex justify-between items-center">  
 <h2 className="text-white font-bold text-base flex items-center gap-2"><span>⚙️</span>複習條件設定</h2>  
-<span className="text-xs text-indigo-400 bg-indigo-950/60 px-2.5 py-1 rounded-full border border-indigo-800/50 font-mono">庫存共 {words.length} 字</span>  
+<span className="text-xs text-indigo-400 bg-indigo-950/60 px-2.5 py-1 rounded-full border border-indigo-800/50 font-mono">《{activeBook.title}》共 {words.length} 字</span>  
 </div>  
   
 <div>  
 <div className="flex justify-between items-center mb-2">  
 <label className="text-xs font-semibold text-gray-300">1. 複習組別：</label>  
 <div className="flex gap-1.5">  
-<button type="button" onClick={()=>setSelectedReviewGroups(availableGroups)} className="px-2 py-0.5 text-[11px] bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 rounded font-medium transition-colors">全選</button>  
+<button type="button" onClick={()=>setSelectedReviewGroups(activeBook.builtin?availableGroups:bookGroups)} className="px-2 py-0.5 text-[11px] bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 rounded font-medium transition-colors">全選</button>  
 <button type="button" onClick={()=>setSelectedReviewGroups([])} className="px-2 py-0.5 text-[11px] bg-gray-900 hover:bg-gray-800 text-gray-400 border border-gray-700 rounded font-medium transition-colors">全部不選</button>  
 </div>  
 </div>  
@@ -617,7 +512,7 @@ return <label key={grp} className="flex items-center gap-2 text-xs text-gray-300
 </button>  
 <button type="button" onClick={()=>setReviewModeType('endless')} className={`p-3 rounded-xl border text-left transition-all ${reviewModeType==='endless'?'bg-indigo-950/80 border-indigo-500 text-white shadow-md':'bg-gray-900/60 border-gray-800 text-gray-400 hover:bg-gray-900'}`}>  
 <div className="text-xs font-bold text-indigo-300 mb-1">♾️️ 無盡循環模式</div>  
-<div className="text-[11px] text-gray-400 leading-normal">每次從整個題庫重新隨機抽卡；答錯、熟練度低、越久沒複習的單字會提高出現機率，單張卡可重複出現。</div>  
+<div className="text-[11px] text-gray-400 leading-normal">打亂排序，字卡將持續循環重覆出現，適合無限刷題。</div>  
 </button>  
 </div>  
 </div>  
@@ -690,7 +585,7 @@ return <label key={grp} className="flex items-center gap-2 text-xs text-gray-300
 </div>  
 <div className="h-2 w-full bg-gray-800 rounded-full mb-2 overflow-hidden"><div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 ease-out" style={{width:`${progressPercentage}%`}}></div></div>  
 <div className="flex justify-between items-center text-xs text-gray-400 font-medium">  
-<span>{reviewModeType==='single'?`進度 (${reviewIndex+1} / ${reviewQueue.length})`:`已回答 ${reviewCompletedCount} 次（依遺忘程度與記憶穩定度動態抽卡）`}</span>  
+<span>{reviewModeType==='single'?`進度 (${reviewIndex+1} / ${reviewQueue.length})`:`已完成 ${reviewCompletedCount} 次 (當前第 ${reviewIndex+1} / ${reviewQueue.length} 張)`}</span>  
 <div className="flex items-center gap-2 font-mono text-[11px]">  
 <span title="陌生"><strong className="text-rose-400">🔴 {stats.red}</strong></span>  
 <span title="生疏"><strong className="text-amber-400">🟡 {stats.yellow}</strong></span>  
