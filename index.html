@@ -284,6 +284,13 @@ utterance.lang='en-US';utterance.rate=.9;
 window.speechSynthesis.speak(utterance);  
 }  
 };  
+
+// 翻到中文面時自動播放英文發音；延遲少許，避免翻卡動畫期間被打斷。
+useEffect(()=>{
+  if(!isFlipped || !(currentWord?.en||currentWord?.word) || !('speechSynthesis' in window)) return;
+  const timer=setTimeout(()=>speakWord(currentWord.en||currentWord.word),250);
+  return ()=>clearTimeout(timer);
+},[isFlipped,currentWord?.en,currentWord?.word]);
   
 useEffect(()=>{  
 const handleKeyDown=e=>{  
@@ -788,7 +795,7 @@ return(
 <div className="absolute inset-0 w-full h-full backface-hidden bg-[#1a1f30] rounded-2xl p-6 border border-indigo-900/50 shadow-xl flex flex-col justify-between rotate-y-180 overflow-y-auto">  
 <div>  
 {renderCardHeader()}  
-<div className="flex justify-between items-baseline mt-3 mb-2">  
+<div className="flex flex-wrap items-baseline justify-start gap-x-2 gap-y-1 mt-3 mb-2">  
 <div className="text-2xl font-bold text-white">{currentWord.en||currentWord.word}</div>  
 {currentWord.pos&&<span className="text-indigo-400 text-xs italic font-mono bg-indigo-950/40 px-2.5 py-0.5 rounded-full border border-indigo-800/50">{currentWord.pos}</span>}  
 </div>  
