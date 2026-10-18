@@ -118,14 +118,23 @@
     "mem": "spring 原本有「突然跳出、冒出」的意思：水從地下突然湧出，就可以說 spring from；某件事情突然出現，也可以用 spring 表示發生、產生。"
   },
   {
+
     "id": 4214,
+
     "en": "sprinkle",
+
     "pos": "v.",
-    "zh": "灑；灑水；灑落",
-    "ex": "My little brother used his toy bucket to sprinkle the flowers which",
-    "root": "源自中古英語，與灑落、散布液體有關。",
-    "mem": "想像弟弟拿著小水桶，像下雨一樣把水「灑、灑、灑」在花朵上。sprinkle 就是少量、分散地灑下去；記住 sprinkles 也常指灑在甜點上的彩色糖粒。",
-    "syn": "spray（噴灑）、scatter（散布）、strew（撒滿）"
+
+    "zh": "灑；淋；灑水",
+
+    "ex": "My little brother used his toy bucket to sprinkle the flowers which flooded them to death.<br>我弟弟拿他的玩具水桶去澆花，但卻把他們淹死了。",
+
+    "root": "源自中古英語，與散布、灑落的概念有關。可聯想 sprinkle 是把液體或小顆粒分散地灑出去。",
+
+    "mem": "想像你拿著灑水壺，一邊走一邊灑水，水滴像小雨點一樣散落在花朵上。sprinkle 就是「灑、撒、噴灑」。",
+
+    "syn": "scatter（撒開；散布）、spray（噴灑）、strew（撒滿）"
+
   },
   {
     "id": 4215,
