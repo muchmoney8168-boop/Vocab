@@ -1,0 +1,490 @@
+[
+ 
+  {
+    "id": 4201,
+    "en": "splendor",
+    "pos": "n.",
+    "zh": "堂皇；壯麗",
+    "ex": "We are amazed by the splendor of the old palaces and the greatness of history in our own country.<br>我們被自己國家裡古老城堡的壯麗和歷史的偉大給深深激賞。",
+    "root": "源自拉丁語 splendor，來自 splendere（閃耀）",
+    "mem": "splendor 是 splendid 的名詞形式：splendid 描述某物很壯麗，splendor 則是那份壯麗與堂皇。想像古老宮殿金碧輝煌的景象。"
+  },
+  {
+    "id": 4202,
+    "en": "split",
+    "pos": "v./n.",
+    "zh": "均分；分配；分開；裂開；分裂；裂縫",
+    "ex": "The two pieces of old photos seemed to be stuck by something, but they were torn up by the time I wanted to split them.<br>那兩張舊照片似乎是被什麼黏起來了，但是當我要把它們分開的時候不小心撕破了。",
+    "root": "源自中古英語 splitten，意為「劈開、裂開、分開」",
+    "mem": "split 聽起來像「撕劈」：把一張紙從中間撕開，分成兩半，就是 split。把東西分成幾份也可以用 split。"
+  },
+  {
+    "id": 4203,
+    "en": "spoil",
+    "pos": "v.",
+    "zh": "腐壞；弄糟",
+    "ex": "Spare the rod and spoil the child.<br>玉不琢不成器。",
+    "root": "源自拉丁語 spoliare（剝奪、掠奪），經古法語進入英語，後發展出「破壞、寵壞」等意思",
+    "mem": "spoil 可以聯想成「把好東西弄壞」：食物放太久會腐壞，事情處理不好會被弄糟；過度溺愛孩子也可能把孩子寵壞。"
+  },
+  {
+    "id": 4204,
+    "en": "spokesperson",
+    "pos": "n.",
+    "zh": "發言人",
+    "ex": "It is rumored that the president will be assassinated by someone who is close to him, so no one dare to be his spokesperson.<br>有傳說說那位總統將會被身邊親近的人刺殺所以沒有人敢當他的發言人。",
+    "root": "spoke（speak 的過去式）+ person（人）→ 代表某人說話的人",
+    "mem": "spokesperson 就是替別人 speak（說話）的 person（人）：當公司或政府不能由每個人出面說明時，就由 spokesperson 統一發言。"
+  },
+  {
+    "id": 4205,
+    "en": "sponge",
+    "pos": "n.",
+    "zh": "海綿",
+    "ex": "Sponge Bob is a popular cartoon character among children now.<br>海綿鮑勃現在是小朋友之間一個很熱門的卡通人物。",
+    "root": "源自拉丁語 spongia，意為「海綿」",
+    "mem": "sponge 聯想成海綿寶寶 SpongeBob：海綿寶寶的身體就像一塊海綿，能吸水，因此 sponge＝海綿。"
+  },
+  {
+    "id": 4206,
+    "en": "spongy",
+    "pos": "adj.",
+    "zh": "柔軟如海綿的",
+    "ex": "Although lying on the spongy pillow, I still sprained my neck.<br>雖然已經躺在軟如海綿的枕頭上，我還是落枕了。",
+    "root": "sponge（海綿）+ -y（具有……性質的）",
+    "mem": "spongy 就是 sponge＋-y：像海綿一樣柔軟、有彈性，按下去會稍微凹陷，因此 spongy＝柔軟如海綿的。"
+  },
+  {
+    "id": 4207,
+    "en": "sponsor",
+    "pos": "n.",
+    "zh": "贊助",
+    "ex": "My uncle and aunt agree to be the sponsors of my bother’s diet project.<br>我舅舅跟舅媽已經答應要當我弟弟減肥計畫的贊助人。",
+    "root": "源自拉丁語 sponsor，原指「保證人、擔保人」，後來引申為「贊助者」",
+    "mem": "sponsor 想成「出錢支持一個計畫的人」：例如叔叔阿姨願意提供資金，讓弟弟的計畫能繼續進行，因此 sponsor＝贊助者、贊助。"
+  },
+  {
+    "id": 4208,
+    "en": "sportsmanship",
+    "pos": "n.",
+    "zh": "運動家精神",
+    "ex": "Everybody should have sportsmanship in any game no matter win or lose.<br>不論比賽輸贏，大家都應該有運動家的精神，無論是輸或贏。",
+    "root": "sport（運動）+ man（人）+ -ship（表示性質或精神的名詞字尾）",
+    "mem": "sportsmanship 就是運動員應有的精神：比賽時遵守規則、尊重對手，輸了不耍賴、贏了不驕傲，這就是 sportsmanship。"
+  },
+  {
+    "id": 4209,
+    "en": "sportsman",
+    "pos": "n.",
+    "zh": "運動員",
+    "ex": "Louis’s cousin is a famous sportsman who is a professor of football.<br>路易士的表哥是個有名的足球專業運動員。",
+    "root": "sport（運動）+ man（人）→ 從事運動的人",
+    "mem": "sportsman 就是 sport（運動）＋man（人）：把運動當作專長、經常參與運動的人，就是 sportsman＝運動員。"
+  },
+  {
+    "id": 4210,
+    "en": "spot",
+    "pos": "v./n.",
+    "zh": "發現；注意到；地點",
+    "ex": "Sun Moon Lake is a famous tourist spot in Taiwan.<br>日月潭是台灣有名的旅遊景點。",
+    "root": "源自中古英語 spot，意為「斑點、小點」，後引申為「特定位置」及「看見、發現」",
+    "mem": "spot 可以指一個「點」：地圖上的一個點是某個地點；眼睛找到某個點、注意到某個東西，就是 spot＝發現、注意到。"
+  },
+  {
+    "id": 4211,
+    "en": "spout",
+    "pos": "v./n.",
+    "zh": "噴出；噴水口；（茶壺等的）嘴；噴水孔",
+    "ex": "My neighbor becomes a millionaire because his son dug out a hole which spouts a lot of oil in his garden.<br>我鄰居因為他兒子在他家花園挖到一個噴出很多油的洞而成為億萬富翁。",
+    "root": "源自古英語 spūtan，與「噴出、吐出」有關",
+    "mem": "spout 聯想成「水從壺嘴噴出」：茶壺的嘴能讓水流出，地下的洞也可能向外噴出石油，因此 spout＝噴出；噴嘴、壺嘴。"
+  },
+  {
+    "id": 4212,
+    "en": "spread",
+    "pos": "n./v.",
+    "zh": "擴展；普及；範圍；展開；散開；蔓延",
+    "ex": "Dengue fever is a kind of epidemic spreading through mosquitoes.<br>登革熱是透過蚊子傳播的一種傳染病。",
+    "root": "源自古英語 sprǣdan，意為「伸展、展開、散布」",
+    "mem": "spread 想成把一張毯子往外攤開：範圍從小變大，就是擴展；疾病從一個人傳到其他人，就是蔓延、傳播。"
+  },
+  {
+    "id": 4213,
+    "en": "spring",
+    "pos": "v.",
+    "zh": "發生；產生",
+    "ex": "Where does the hot spring spring from?<br>這溫泉何處產生的？",
+    "root": "源自古英語 springan，意為「跳起、突然冒出、湧出」",
+    "mem": "spring 原本有「突然跳出、冒出」的意思：水從地下突然湧出，就可以說 spring from；某件事情突然出現，也可以用 spring 表示發生、產生。"
+  },
+  {
+    "id": 4214,
+    "en": "sprinkle",
+    "pos": "v.",
+    "zh": "灑；灑水；灑落",
+    "ex": "My little brother used his toy bucket to sprinkle the flowers which",
+    "root": "源自中古英語，與灑落、散布液體有關。",
+    "mem": "想像弟弟拿著小水桶，像下雨一樣把水「灑、灑、灑」在花朵上。sprinkle 就是少量、分散地灑下去；記住 sprinkles 也常指灑在甜點上的彩色糖粒。",
+    "syn": "spray（噴灑）、scatter（散布）、strew（撒滿）"
+  },
+  {
+    "id": 4215,
+    "en": "spur",
+    "pos": "n./v.",
+    "zh": "馬刺；激勵；以馬刺刺激；激勵",
+    "ex": "The coach’s words are the spur of all the team, that’s a magical power to push us moving forward.<br>教練的話是我們全隊的激勵，是一種推進我們向前的神奇動力。",
+    "root": "源自古英語 spura，指騎士靴上的「馬刺」，後引申為刺激、激勵。",
+    "mem": "想像騎士騎馬時，用靴上的馬刺輕輕刺激馬匹，讓馬跑得更快。spur 原本是「馬刺」，引申成推動人前進的「激勵」。教練的一番話就像馬刺，讓全隊更有衝勁！",
+    "syn": "motivate（激勵）、encourage（鼓勵）、stimulate（刺激）"
+  },
+  {
+    "id": 4216,
+    "en": "spy",
+    "pos": "v./n.",
+    "zh": "注意到；看見；間諜；密探",
+    "ex": "He was arrested for spying on confidential data.<br>他竊取機密文件而被逮捕。",
+    "root": "源自古法語 espier，意為「觀察、監視」。",
+    "mem": "記住電影裡的 spy（間諜）：他躲在角落偷偷觀察，注意到別人沒發現的事情。spy 當名詞是「間諜」，當動詞則可表示「暗中監視、注意到」。",
+    "syn": "observe（觀察）、watch（注視）、agent（特務；間諜）"
+  },
+  {
+    "id": 4217,
+    "en": "square",
+    "pos": "adj./v./n.",
+    "zh": "正直的；直的；抬平（肩膀）；擺好架勢；正方形；廣場",
+    "ex": "It is always full of people in front of Times Square in New York every countdown.<br>每年跨年倒數時，紐約時代廣場前總是擠滿了人。",
+    "root": "源自拉丁語 quadrus（四方形的），經古法語進入英語。",
+    "mem": "square 想成「四四方方」：正方形有四條邊，城市裡的廣場也常是開闊的方形空間。人若做事方正、不偏不倚，也可以聯想到 square 的「正直」。",
+    "syn": "quadrilateral（四邊形）、plaza（廣場）、honest（正直的）"
+  },
+  {
+    "id": 4218,
+    "en": "squash",
+    "pos": "v./n.",
+    "zh": "把……壓扁；擠壓；擠榨；擠擠",
+    "ex": "It is a squash to get on a bus full of people.<br>搭上載滿人的公車實在很擠。",
+    "root": "源自古法語 esquasser，與壓碎、壓扁有關。",
+    "mem": "想像一顆番茄被重物壓下去，瞬間扁掉、汁液四濺！squash 就是「壓扁、擠壓」。尖峰時間擠進塞滿人的公車，大家被擠得像壓扁的番茄，也可以聯想 squash。",
+    "syn": "crush（壓碎）、press（按壓）、squeeze（擠壓）"
+  },
+  {
+    "id": 4219,
+    "en": "squeeze",
+    "pos": "n./v.",
+    "zh": "擠；壓；緊握；擠；緊握",
+    "ex": "Squeeze the lime into the bowl.<br>將萊姆汁擠到碗內。",
+    "root": "源自中古英語 queise，與用力擠壓有關。",
+    "mem": "想像你把一顆萊姆握在手中，用力一 squeeze，酸酸的汁液就滴進碗裡。squeeze 不只是壓，也有「把液體擠出來」的感覺。",
+    "syn": "press（按壓）、compress（壓縮）、squash（擠壓）"
+  },
+  {
+    "id": 4220,
+    "en": "stage",
+    "pos": "v./n.",
+    "zh": "演出；上演；舞台；階段",
+    "ex": "Adolescence is the stage we all have been through.<br>青春期是我們每個人的必經階段。",
+    "root": "源自拉丁語 stadium，經古法語 estage 演變而來，與停留的位置或階段有關。",
+    "mem": "想像人生是一場戲：演員先走上 stage（舞台），而人生也分成不同 stage（階段），像童年、青春期和成年。舞台與人生階段都可以用 stage 表示。",
+    "syn": "phase（階段）、period（時期）、platform（平台；台子）"
+  },
+  {
+    "id": 4221,
+    "en": "stagger",
+    "pos": "v.",
+    "zh": "步伐蹣跚；搖搖晃晃",
+    "ex": "With a glimpse, I found out a wanderer staggering toward me was my drunken father.",
+    "root": "源自古北歐語，與步伐不穩、搖晃有關。",
+    "mem": "想像有人喝醉酒走路，左一步、右一步，身體搖搖晃晃，差點站不穩。這種踉蹌的走路方式就是 stagger。",
+    "syn": "stumble（絆倒；踉蹌）、totter（蹣跚）、wobble（搖晃）"
+  },
+  {
+    "id": 4222,
+    "en": "stain",
+    "pos": "n./v.",
+    "zh": "污跡；污點；沾污",
+    "ex": "Your ketchup stained my new shoes! See how you make it up?<br>你的蕃茄醬把我的新鞋弄髒了！看你怎麼補償我？",
+    "root": "源自古法語 desteindre，與染色、留下顏色有關。",
+    "mem": "想像你穿著一雙全新的白鞋，卻不小心踩到番茄醬，留下洗不掉的紅色污漬！那個污漬是 a stain，把鞋弄髒就是 stain。",
+    "syn": "spot（污點）、mark（痕跡）、dirty（弄髒）"
+  },
+  {
+    "id": 4223,
+    "en": "stammer",
+    "pos": "v./n.",
+    "zh": "結結巴巴地說；口吃；結巴",
+    "ex": "When we mentioned about his new girlfriend, he just stammered out something without a clearly answer.<br>當我們提到他的新女友的時候，他只是結結巴巴的說出似是非是的答案。",
+    "root": "源自古英語及日耳曼語系中與口吃、說話不流暢相關的詞。",
+    "mem": "想像有人被突然問到害羞的問題，緊張得說話卡住：「我、我、我……」一句話斷斷續續地說不出來，就是 stammer。",
+    "syn": "stutter（口吃）、falter（說話猶豫；支吾）、hesitate（猶豫）"
+  },
+  {
+    "id": 4224,
+    "en": "stance",
+    "pos": "n.",
+    "zh": "站姿",
+    "ex": "Incorrect stance will bend your spine and it’s likely to become a hunchback.<br>不正確的站姿會讓脊椎彎曲並容易變成駝背。",
+    "root": "源自義大利語 stanza，與站立的位置、姿勢有關。",
+    "mem": "想像武術選手比賽前雙腳站穩、膝蓋微彎，擺出準備迎戰的姿勢。這個站立的姿勢就是 stance，也可以引申為對某件事的立場。",
+    "syn": "posture（姿勢）、position（位置）、attitude（態度；立場）"
+  },
+  {
+    "id": 4225,
+    "en": "stand",
+    "pos": "v.",
+    "zh": "忍受",
+    "ex": "I can’t stand his extremely negative attitude toward any difficulty he faces.<br>我無法忍受他面對任何困難所抱持的極度負面態度。",
+    "root": "源自古英語 standan，原意為「站立」；stand 也發展出「承受、忍受」的意思。",
+    "mem": "想像你站在一個人旁邊，聽他不停抱怨，負面言論像噪音一樣轟炸你。你終於受不了，大喊：「I can't stand it!」也就是「我受不了了、我無法忍受！」",
+    "syn": "tolerate（容忍）、endure（忍受）、bear（承受）"
+  },
+  {
+    "id": 4226,
+    "en": "standard",
+    "pos": "n./adj.",
+    "zh": "標準；水準；標準的",
+    "ex": "Standards of beauty are volatile.<br>美的標準一直在變。",
+    "root": "源自古法語 estandart，原指軍隊使用的旗幟，後來引申為衡量事物的標準。",
+    "mem": "想像考試前老師拿出一把「標準尺」，大家都用同一把尺衡量答案是否合格。standard 就是衡量好壞、合格與否的標準，也能形容符合標準的事物。",
+    "syn": "criterion（標準）、benchmark（基準）、norm（常規；標準）"
+  },
+  {
+    "id": 4227,
+    "en": "standard-sized",
+    "pos": "adj.",
+    "zh": "標準尺寸的（汽車）",
+    "ex": "My mother says her new car is just standard-sized, but she can’t even back it into our garage.<br>我媽媽說她的新車只是標準尺寸，但是她竟然無法把它倒入自家的車庫。",
+    "root": "standard（標準的）+ sized（具有某種尺寸的）→ 符合標準尺寸的",
+    "mem": "standard 是「標準」，sized 是「尺寸的」。想像停車場畫著統一大小的停車格，車子若是 standard-sized，就是標準尺寸的車，不是特別大或特別小。",
+    "syn": "regular-sized（一般尺寸的）、average-sized（平均尺寸的）、normal-sized（正常尺寸的）"
+  },
+  {
+    "id": 4228,
+    "en": "standstill",
+    "pos": "n.",
+    "zh": "停頓；靜止",
+    "ex": "The standstill of time happened at the moment when we stared eyes to eyes, and then I finally realized the meaning of “fall in love at the first sight.”<br>靜止的時間在我們四目交接的瞬間，終於我就瞭解了一見鍾情的意義。",
+    "root": "stand（站立、停住）+ still（靜止的）→ 完全停住、不再移動",
+    "mem": "想像電影突然按下暫停鍵，所有人都定格不動，連時間彷彿也停止了。standstill 就是完全停住的狀態，例如交通陷入停滯或事情毫無進展。",
+    "syn": "halt（停止）、pause（暫停）、deadlock（僵局；停滯）"
+  },
+  {
+    "id": 4229,
+    "en": "stare",
+    "pos": "v./n.",
+    "zh": "凝視；瞪著看；凝視",
+    "ex": "Jason is a so-called phubber. He can stare his phone during the meal without a word.<br>傑森是個名副其實的低頭族。他可以用整全程盯著他的手機不發一語。",
+    "root": "源自古英語 starian，意為「凝視、盯著看」。",
+    "mem": "想像上課時老師突然點名，你卻還死盯著手機螢幕，眼睛一動也不動。這種長時間盯著看的動作就是 stare。記住：**stare＝死盯著看**。",
+    "syn": "gaze（凝視）、glare（怒視）、peer（仔細看）"
+  },
+  {
+    "id": 4230,
+    "en": "stark",
+    "pos": "adj.",
+    "zh": "不折不扣的；完全的",
+    "ex": "She is a stark shopaholic. Not to mention cosmetics, only her shoes can stuff full her hallway.<br>她是個不折不扣的購物狂，不用說化妝品，光她的鞋子就可以塞爆她家玄關了。",
+    "root": "源自古英語 stearc，原有「僵硬、嚴酷、強烈」等意思，後引申為「完全的、十足的」。",
+    "mem": "想像一個購物狂的玄關堆滿鞋子，連走路的地方都沒有！這不是普通的購物狂，而是 stark shopaholic——不折不扣的購物狂。把 stark 記成「程度強到毫不含糊」。",
+    "syn": "complete（完全的）、absolute（絕對的）、utter（十足的）"
+  },
+  {
+    "id": 4231,
+    "en": "startle",
+    "pos": "v.",
+    "zh": "使吃驚",
+    "ex": "I was startled that my little sister could unlock my room. Isn’t she just 3 years old?<br>我很驚訝我小妹妹竟然解開了我房間的鎖。她不是只有三歲而已嗎？",
+    "root": "源自古英語 steartlian，與突然驚動、受驚有關。",
+    "mem": "想像你晚上專心讀書，突然有人從背後大喊「嘿！」你整個人嚇得跳起來。讓人突然嚇一跳，就是 startle；被嚇到則是 be startled。",
+    "syn": "surprise（使驚訝）、shock（使震驚）、frighten（使害怕）"
+  },
+  {
+    "id": 4232,
+    "en": "startled",
+    "pos": "adj.",
+    "zh": "感到驚訝的",
+    "ex": "His language ability really makes his parents feel so startled and they are very proud of him.<br>他的語言能力讓他父母驚訝並且非常引他為傲。",
+    "root": "startle（使吃驚）+ -ed（表示受到某種影響的狀態）→ 感到吃驚的",
+    "mem": "記住這組：startle 是「嚇到別人」，startled 是「自己被嚇到」。想像爸媽發現孩子竟然會說好幾種語言，驚訝得張大嘴巴：They are startled!",
+    "syn": "surprised（驚訝的）、shocked（震驚的）、astonished（驚愕的）"
+  },
+  {
+    "id": 4233,
+    "en": "startling",
+    "pos": "adj.",
+    "zh": "令人吃驚的",
+    "ex": "It’s startling that my cake in the refrigerator still left completely after my brother opened it.<br>令人吃驚的是在我哥哥開完冰箱後我的蛋糕仍然完整的留在那裡。",
+    "root": "startle（使吃驚）+ -ing（表示具有某種效果的）→ 令人吃驚的",
+    "mem": "用 -ing 和 -ed 對照記：startling 是「讓人嚇一跳的事物」，startled 是「被嚇到的人」。蛋糕竟然沒被哥哥吃掉，這件事本身很 startling！",
+    "syn": "astonishing（令人驚訝的）、shocking（令人震驚的）、surprising（令人意外的）"
+  },
+  {
+    "id": 4234,
+    "en": "starvation",
+    "pos": "n.",
+    "zh": "飢餓；餓死",
+    "ex": "I’m suffering a severe starvation because my brother ate all the food and left nothing for me in the refrigerator.<br>我現在身陷於嚴重的飢餓因為我弟弟將冰箱光了所有冰箱的食物，一點都沒留給我。",
+    "root": "starve（挨餓）+ -ation（形成名詞的字尾）→ 飢餓的狀態",
+    "mem": "starve 是「挨餓」，starvation 是「飢餓的狀態」。想像打開冰箱，裡面竟然空空如也，連一口食物都沒有！這種嚴重缺乏食物的狀態就是 starvation。",
+    "syn": "hunger（飢餓）、famine（饑荒）、deprivation（匱乏）"
+  },
+  {
+    "id": 4235,
+    "en": "starve",
+    "pos": "v.",
+    "zh": "（使）餓死",
+    "ex": "A lot of children starve to death in the Africa where the food and water supply are poorly insufficient.<br>很多孩子餓死在非洲因為那裡的食物和水源的供應都非常的不足。",
+    "root": "源自古英語 steorfan，原意與死亡有關，後來發展出「因缺乏食物而挨餓、餓死」的意思。",
+    "mem": "把 starve 和 starvation 一起記：starve 是動作「挨餓」，starvation 是名詞「飢餓」。常見搭配是 starve to death＝餓死，starve for attention＝渴望受到關注。",
+    "syn": "hunger（挨餓）、famish（使挨餓；挨餓）、deprive（剝奪）"
+  },
+  {
+    "id": 4236,
+    "en": "starving",
+    "pos": "adj.",
+    "zh": "飢餓的",
+    "ex": "I’m starving! Can we just have something to eat?<br>我快餓死了！我們可以去買點東西吃嗎？",
+    "root": "starve（挨餓）+ -ing（表示正在經歷某種狀態）→ 飢餓的",
+    "mem": "想像你放學後餓得肚子咕嚕叫，一看到餐廳就衝進去大喊：「I'm starving!」這是比 I'm hungry 更強烈的說法，表示「我快餓扁了！」",
+    "syn": "hungry（飢餓的）、famished（餓極了的）、ravenous（極度飢餓的）"
+  },
+  {
+    "id": 4237,
+    "en": "state",
+    "pos": "v./n.",
+    "zh": "陳述；說明；狀態；情形",
+    "ex": "I am often in a state of nerves before taking tests.<br>考試前我經常是很緊張的。",
+    "root": "源自拉丁語 status，與「站立、所處的位置或狀況」有關。",
+    "mem": "想像老師問你考試前的狀態，你清楚地回答：「我很緊張。」你把自己的情況說出來，就是 state（陳述）；你所處的情況則是 a state（狀態）。",
+    "syn": "condition（狀況）、situation（情形）、declare（陳述）"
+  },
+  {
+    "id": 4238,
+    "en": "statement",
+    "pos": "n.",
+    "zh": "陳述；敘述",
+    "ex": "Your statements have some logical mistakes. I am wondering maybe you can rewrite it again.<br>你的陳述犯了些邏輯上的錯誤，我在想您可以重寫一遍。",
+    "root": "state（陳述）+ -ment（形成名詞的字尾）→ 陳述的內容",
+    "mem": "state 是「陳述」，statement 就是「說出來或寫下來的陳述」。想像數學證明中，你寫下一句主張，老師檢查後發現其中有邏輯錯誤，那句話就是一個 statement。",
+    "syn": "declaration（聲明）、remark（言論）、assertion（主張）"
+  },
+  {
+    "id": 4239,
+    "en": "statesman",
+    "pos": "n.",
+    "zh": "政治家；具有明智且卓越政治見識的政治人物",
+    "ex": "He is an outstanding statesman that no one can do better than him.<br>他是一個優秀的政治家，沒有人能做的比他更好。",
+    "root": "state（國家；政治）+ man（人）→ 從事國家政治事務的人",
+    "mem": "statesman 不只是一般的政治人物，更強調有遠見、有能力處理國家大事。想像一位政治家站在國家地圖前，思考如何讓人民過得更好。",
+    "syn": "politician（政治人物）、leader（領導者）、diplomat（外交官）"
+  },
+  {
+    "id": 4240,
+    "en": "statistics",
+    "pos": "n.",
+    "zh": "統計數字；統計資料",
+    "ex": "According to the epidemiological statistics, neurodegenerative diseases will become the second leading cause of death.<br>根據流行性病學的統計，退化性神經性疾病將成為第二大死因。",
+    "root": "源自 statistic（統計的），與拉丁語 status（狀態、情況）有關。",
+    "mem": "想像你正在做科展，把一大堆調查結果整理成表格和圖表。這些用來分析情況的數字，就是 statistics（統計資料）。注意：statistics 也可以指「統計學」。",
+    "syn": "data（資料）、figures（數字；數據）、statistical information（統計資訊）"
+  },
+  {
+    "id": 4241,
+    "en": "statue",
+    "pos": "n.",
+    "zh": "雕像；塑像",
+    "ex": "My dream is to make a huge statue of myself to decorate my home.<br>我的夢想是製造一個我自己的大雕像來裝飾我家。",
+    "root": "源自拉丁語 statua，與 statuere（設立、放置）有關。",
+    "mem": "想像廣場上有一座巨大的人物雕像，站在那裡多年都不會動。statue 是「雕像」；可聯想 statue of liberty（自由女神像）。",
+    "syn": "sculpture（雕塑）、figure（塑像；人像）、monument（紀念碑）"
+  },
+  {
+    "id": 4242,
+    "en": "status",
+    "pos": "n.",
+    "zh": "重要地位或身分；（社會）地位",
+    "ex": "Ann Lee’s status of movie entertainment in Taiwan is irreplaceable.<br>李安在台灣電影娛樂界的地位是不可取代的。",
+    "root": "源自拉丁語 status，意為「狀態、地位、身分」，與 stand（站立）有歷史上的詞源關聯。",
+    "mem": "把 status 聯想成「站在什麼位置」：一個人站在團體中的位置，就是他的地位；一件事情目前處於什麼位置，就是它的狀態。記住：status＝你現在的「位置與身分」。",
+    "syn": "position（地位）、standing（地位；聲望）、rank（等級；排名）"
+  },
+  {
+    "id": 4243,
+    "en": "steadily",
+    "pos": "adv.",
+    "zh": "持續地；穩定地",
+    "ex": "With a lot of difficulties, our friendship still going steadily is based on the trust of each other.<br>雖然有很多困難，我們的友誼仍能持續穩定都是基於我們對互相的信任。",
+    "root": "steady（穩定的）+ -ly（副詞字尾）→ 穩定地、持續地。",
+    "mem": "steady 聯想成「站得穩」：即使路上有很多石頭，你還是一步一步穩穩往前走。加上 -ly 變成 steadily，就是「穩定地、持續地」。",
+    "syn": "consistently（一貫地；持續地）、continuously（持續不斷地）、stably（穩定地）"
+  },
+  {
+    "id": 4244,
+    "en": "steady",
+    "pos": "adj.",
+    "zh": "持續的；穩定的",
+    "ex": "The price of vegetables remains steady.<br>蔬菜的價格平穩。",
+    "root": "源自古英語 stædig，與「固定、穩固」的概念有關。",
+    "mem": "想像你手上拿著一杯水，走路時手完全不晃，水面也不搖動。你的手很 steady（穩定的）。記住：steady 是形容詞，steadily 是副詞。",
+    "syn": "stable（穩定的）、constant（持續不變的）、firm（穩固的）"
+  },
+  {
+    "id": 4245,
+    "en": "steal",
+    "pos": "v.",
+    "zh": "偷竊",
+    "ex": "The shopkeeper accused him of stealing goods in the grocery.<br>店老闆控告他偷竊店裡的東西。",
+    "root": "源自古英語 stelan，意為「偷竊」。steal 的過去式是 stole，過去分詞是 stolen。",
+    "mem": "記住三態：steal－stole－stolen。想像小偷偷偷把商店的商品拿走，店員大喊：「Someone stole it!」偷竊就是 steal。",
+    "syn": "rob（搶劫；掠奪）、pilfer（小偷小摸）、take illegally（非法拿取）"
+  },
+  {
+    "id": 4246,
+    "en": "stealing",
+    "pos": "n.",
+    "zh": "偷竊",
+    "ex": "We are taught that stealing is not a good behavior, and it’s forbid to do no matter what kind of reason we have.<br>我們被教導說偷竊是不好的行為，不管你有什麼理由都不能去做。",
+    "root": "steal（偷竊）+ -ing（動名詞字尾）→ 偷竊這個行為。",
+    "mem": "steal 是「偷」這個動作，stealing 是把動作當成一件事來談，也就是「偷竊」。例如：Stealing is wrong.（偷竊是不對的。）",
+    "syn": "theft（偷竊）、larceny（竊盜）、pilfering（小偷小摸）"
+  },
+  {
+    "id": 4247,
+    "en": "steam",
+    "pos": "v./n.",
+    "zh": "v. 冒蒸氣；蒸熱；n. 蒸氣；水蒸氣",
+    "ex": "The fumaroles of the Vesuvius steams out a lot of hot steams.<br>維蘇威火山的火山口噴出很多熱的蒸汽。",
+    "root": "源自古英語 stēam，意為「蒸氣、煙霧」。",
+    "mem": "想像水壺裡的水煮到沸騰，壺嘴冒出白白的熱氣：那就是 steam。水壺冒蒸氣可以說 steam；蒸氣本身也叫 steam。",
+    "syn": "vapor（蒸氣）、mist（薄霧）、evaporate（蒸發）"
+  },
+  {
+    "id": 4248,
+    "en": "steel",
+    "pos": "n./adj.",
+    "zh": "n. 鋼；adj. 鋼的；鋼製的",
+    "ex": "Weapons of this kind are made from steel, so they are stiffer than wooden ones.<br>這種武器是由鋼鐵做成的，他們會比木製的堅固。",
+    "root": "源自古英語 stȳle，指「鋼」。",
+    "mem": "steel 和 steal 發音相同，但意思不同：steal 是「偷」，steel 是「鋼」。想像小偷 steal 了一塊 steel（鋼材），用這個畫面把兩個字一起記住。",
+    "syn": "metal（n. 金屬）、iron（n. 鐵；v. 用熨斗熨）、metallic（adj. 金屬的）"
+  },
+  {
+    "id": 4249,
+    "en": "steep",
+    "pos": "adj.",
+    "zh": "陡峭的；急劇升降的",
+    "ex": "It’s difficult for me to climb steep hill because my waist has some problem.<br>我很難去爬很陡峭的山因為我的腰有點問題。",
+    "root": "源自古英語 stēap，意為「高聳的、陡峭的」。",
+    "mem": "想像一座山坡幾乎直直往上，爬起來讓人喘不過氣。這種坡就是 steep。也可以記 steep increase＝急劇增加，因為數值像陡坡一樣快速往上衝。",
+    "syn": "inclined（傾斜的）、precipitous（陡峭的）、sharp（急劇的）"
+  },
+  {
+    "id": 4250,
+    "en": "steepness",
+    "pos": "n.",
+    "zh": "陡峭；險峻",
+    "ex": "The steepness of life challenges our patience to become more mature.<br>人生的險峻挑戰我們的耐心去變成更成熟的人。",
+    "root": "steep（陡峭的）+ -ness（使形容詞變成名詞的字尾）→ 陡峭的程度、險峻。",
+    "mem": "steep 是「陡峭的」，steepness 就是「陡峭的程度」。想像兩座山，一座坡度平緩，一座幾乎垂直；後者的 steepness 更大。看到 -ness，就想到「某種性質或狀態」。",
+    "syn": "slope（坡度；斜坡）、inclination（傾斜度）、gradient（坡度；梯度）"
+  }
+]
