@@ -37,11 +37,51 @@ const BUILTIN_BOOK={id:BUILTIN_BOOK_ID,title:"核心 4500 單字",subtitle:"",ic
 const ALLPLUS_BOOK={id:"allplus",title:"All+ 雜誌",subtitle:"",icon:"ALL+",color:"from-amber-500 to-orange-700",builtin:true,managed:true,words:[],createdAt:0};
 const loadBooks=()=>{try{const raw=JSON.parse(localStorage.getItem(BOOKS_STORAGE_KEY)||"[]");const saved=Array.isArray(raw)?raw.filter(b=>b&&b.id!==BUILTIN_BOOK_ID&&b.id!==ALLPLUS_BOOK.id):[];return [BUILTIN_BOOK,ALLPLUS_BOOK,...saved];}catch(e){return [BUILTIN_BOOK,ALLPLUS_BOOK];}};
 const saveBooks=books=>{try{localStorage.setItem(BOOKS_STORAGE_KEY,JSON.stringify(books.filter(b=>b.id!==BUILTIN_BOOK_ID&&b.id!==ALLPLUS_BOOK.id)));}catch(e){console.error("儲存書櫃失敗",e);}};
-const EMPTY_LEARNING_RECORD={red:0,yellow:0,green:0,blue:0,mastery:null,yellowStar:false,blueStar:false,lastReviewedAt:null};
+const EMPTY_LEARNING_RECORD={red:0,yellow:0,green:0,blue:0,mastery:null,masteryScore:null,history:[],yellowStar:false,blueStar:false,lastReviewedAt:null};
+const MASTERY_BASE_SCORE={red:10,yellow:35,green:62,blue:88};
+const clampScore=value=>Math.max(0,Math.min(100,Math.round(value)));
+// 升級門檻高於降級門檻，避免分數在邊界附近反覆跳級。
+const resolveMastery=(score,current)=>{
+  const up={red:32,yellow:60,green:87,blue:101};
+  const down={red:-1,yellow:18,green:46,blue:73};
+  let level=current||'red';
+  const order=['red','yellow','green','blue'];
+  while(order.indexOf(level)<3&&score>=up[level])level=order[order.indexOf(level)+1];
+  while(order.indexOf(level)>0&&score<down[level])level=order[order.indexOf(level)-1];
+  return level;
+};
+const shuffleArray=items=>{const result=[...items];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;};
 const loadLearningRecords=()=>{try{const raw=localStorage.getItem(LEARNING_STORAGE_KEY);const records=raw?JSON.parse(raw)||{}:{};let migrated=false;Object.keys(records).forEach(key=>{if(!key.includes("::")){records[`${BUILTIN_BOOK_ID}::${key}`]=records[key];delete records[key];migrated=true;}});if(migrated)localStorage.setItem(LEARNING_STORAGE_KEY,JSON.stringify(records));return records;}catch(e){console.error("讀取學習紀錄失敗：",e);return{};}};
 const saveLearningRecords=records=>{try{localStorage.setItem(LEARNING_STORAGE_KEY,JSON.stringify(records));}catch(e){console.error("儲存學習紀錄失敗：",e);}};
 const normalizeLearningRecord=record=>({...EMPTY_LEARNING_RECORD,...(record||{})});
 const buildLearningState=records=>{const starred={},mastery={},lastReviewedAt={},stats={red:0,yellow:0,green:0,blue:0};Object.entries(records).forEach(([id,raw])=>{const r=normalizeLearningRecord(raw);if(r.yellowStar||r.blueStar)starred[id]={yellow:!!r.yellowStar,blue:!!r.blueStar};if(r.mastery)mastery[id]=r.mastery;if(r.lastReviewedAt)lastReviewedAt[id]=r.lastReviewedAt;stats.red+=Number(r.red)||0;stats.yellow+=Number(r.yellow)||0;stats.green+=Number(r.green)||0;stats.blue+=Number(r.blue)||0;});return{starred,mastery,lastReviewedAt,stats};};
+// 以歷史掌握度、近期錯誤、複習間隔及短期冷卻共同計算下一張卡的權重。
+const getCardPriority=(word,records,now=Date.now())=>{
+  const key=`${word.__bookId||BUILTIN_BOOK_ID}::${String(word.id)}`;
+  const record=normalizeLearningRecord(records[key]);
+  const history=Array.isArray(record.history)?record.history:[];
+  const score=record.masteryScore!==null&&record.masteryScore!==undefined&&Number.isFinite(Number(record.masteryScore))?Number(record.masteryScore):MASTERY_BASE_SCORE[record.mastery]||20;
+  let priority=1.2+(100-score)/18;
+  const recent=history.slice(-5);
+  const recentRed=recent.filter(e=>e.rating==='red').length;
+  const recentYellow=recent.filter(e=>e.rating==='yellow').length;
+  priority+=recentRed*1.7+recentYellow*.65;
+  const last=Number(record.lastReviewedAt)||0;
+  if(last){const days=Math.max(0,(now-last)/86400000);priority+=Math.min(3,Math.log2(days+1)*.8);}
+  else priority+=1.5;
+  return Math.max(.2,Math.min(18,priority));
+};
+const chooseWeightedWord=(pool,records,recentKeys=[])=>{
+  if(!pool.length)return null;
+  const recent=new Set(recentKeys.slice(-Math.min(8,Math.max(0,pool.length-1))));
+  let candidates=pool.filter(w=>!recent.has(`${w.__bookId||BUILTIN_BOOK_ID}::${String(w.id)}`));
+  if(!candidates.length)candidates=pool.filter(w=>!recentKeys.length||`${w.__bookId||BUILTIN_BOOK_ID}::${String(w.id)}`!==recentKeys[recentKeys.length-1]);
+  if(!candidates.length)candidates=pool;
+  const weights=candidates.map(w=>getCardPriority(w,records));
+  const total=weights.reduce((a,b)=>a+b,0);let pick=Math.random()*total;
+  for(let i=0;i<candidates.length;i++){pick-=weights[i];if(pick<=0)return candidates[i];}
+  return candidates[candidates.length-1];
+};
 
 function FlashcardApp(){  
 const initialLearningRef=useRef(null);
@@ -84,7 +124,9 @@ const[reviewMasteries,setReviewMasteries]=useState({red:false,yellow:false,green
 const[reviewStars,setReviewStars]=useState({yellow:false,blue:false});  
 const[reviewQueue,setReviewQueue]=useState([]);  
 const[reviewIndex,setReviewIndex]=useState(0);  
-const[reviewCompletedCount,setReviewCompletedCount]=useState(0);  
+const[reviewCompletedCount,setReviewCompletedCount]=useState(0);
+const recentReviewKeysRef=useRef([]);
+const reviewPoolRef=useRef([]);  
   
 // 每個單字的 JSON 物件可直接加入 synonyms 欄位，例如 synonyms:["give up","desert"]；中文面會自動顯示。
 const parseHtmlToWords=htmlText=>{  
@@ -235,21 +277,30 @@ if(bankStarFilter.blue&&!star.blue)return false;
 return true;  
 });  
   
-const handleNext=()=>{  
-if(mainMode==='bank'){  
-if(currentIndex<bankFilteredWords.length-1){  
-setIsFlipped(false);setTimeout(()=>setCurrentIndex(prev=>prev+1),120);  
-}  
-}else if(mainMode==='review_active'){  
-if(reviewIndex<reviewQueue.length-1){  
-setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);  
-}else if(reviewModeType==='endless'){  
-setReviewQueue([...reviewQueue].sort(()=>Math.random()-.5));  
-setIsFlipped(false);setTimeout(()=>setReviewIndex(0),120);  
-}  
-}  
-};  
-  
+const rememberCurrentReviewCard=()=>{
+  const word=reviewQueue[reviewIndex];if(!word)return;
+  const key=learningKey(word.id,word.__bookId||activeBookId);
+  recentReviewKeysRef.current=[...recentReviewKeysRef.current,key].slice(-12);
+};
+const advanceReview=()=>{
+  if(reviewIndex<reviewQueue.length-1){
+    rememberCurrentReviewCard();setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);return;
+  }
+  if(reviewModeType==='single')return;
+  rememberCurrentReviewCard();
+  const pool=reviewPoolRef.current;
+  const next=chooseWeightedWord(pool,loadLearningRecords(),recentReviewKeysRef.current);
+  if(!next){setNotice('目前沒有可繼續複習的單字。');return;}
+  const key=learningKey(next.id,next.__bookId||activeBookId);
+  recentReviewKeysRef.current=[...recentReviewKeysRef.current,key].slice(-12);
+  setReviewQueue(prev=>[...prev,next]);setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);
+};
+const handleNext=()=>{
+  if(mainMode==='bank'){
+    if(currentIndex<bankFilteredWords.length-1){setIsFlipped(false);setTimeout(()=>setCurrentIndex(prev=>prev+1),120);}
+  }else if(mainMode==='review_active')advanceReview();
+};
+
 const handlePrev=()=>{  
 if(mainMode==='bank'){  
 if(currentIndex>0){setIsFlipped(false);setTimeout(()=>setCurrentIndex(prev=>prev-1),120)}  
@@ -335,28 +386,43 @@ reader.readAsText(file);event.target.value='';
 };  
   
 const handleRate=(level,currentWordId)=>{
-if(currentWordId!==undefined&&currentWordId!==null){
-const currentBookId=mainMode==='review_active'?(reviewQueue[reviewIndex]?.__bookId||activeBookId):activeBookId;
-const now=Date.now(),records=loadLearningRecords(),key=learningKey(currentWordId,currentBookId),old=normalizeLearningRecord(records[key]);
-records[key]={...old,[level]:(Number(old[level])||0)+1,mastery:level,lastReviewedAt:now};
-saveLearningRecords(records);
-setCardMastery(prev=>({...prev,[key]:level}));
-setLastReviewedAt(prev=>({...prev,[key]:now}));
-}
-setStats(prev=>({...prev,[level]:prev[level]+1}));
-if(mainMode==='bank')handleNext();  
-else if(mainMode==='review_active'){  
-setReviewCompletedCount(prev=>prev+1);  
-if(reviewIndex<reviewQueue.length-1){  
-setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);  
-}else if(reviewModeType==='single')setMainMode('review_done');  
-else{  
-setReviewQueue([...reviewQueue].sort(()=>Math.random()-.5));  
-setIsFlipped(false);setTimeout(()=>setReviewIndex(0),120);  
-}  
-}  
-};  
-  
+  let savedRecords=null;
+  if(currentWordId!==undefined&&currentWordId!==null){
+    const currentBookId=mainMode==='review_active'?(reviewQueue[reviewIndex]?.__bookId||activeBookId):activeBookId;
+    const now=Date.now(),records=loadLearningRecords(),key=learningKey(currentWordId,currentBookId),old=normalizeLearningRecord(records[key]);
+    const history=Array.isArray(old.history)?old.history:[];
+    const previousLevel=old.mastery||null;
+    let score=old.masteryScore!==null&&old.masteryScore!==undefined&&Number.isFinite(Number(old.masteryScore))?Number(old.masteryScore):(previousLevel?MASTERY_BASE_SCORE[previousLevel]:null);
+    if(score===null){score=MASTERY_BASE_SCORE[level];}
+    else{
+      const lastEvent=history[history.length-1];
+      const previousReviewAt=lastEvent?.at||old.lastReviewedAt;
+      const gap=previousReviewAt?now-(Number(previousReviewAt)||now):Infinity;
+      // 同一短時段的重複評分資訊量較低；跨日證據權重較高。
+      const evidenceFactor=gap<10*60*1000?.35:gap<24*60*60*1000?.65:gap>=3*24*60*60*1000?1.15:1;
+      const delta={red:-12,yellow:-5,green:5,blue:9}[level]||0;
+      score=clampScore(score+delta*evidenceFactor);
+    }
+    const mastery=resolveMastery(score,previousLevel||level);
+    const event={rating:level,at:now,scoreAfter:score,masteryAfter:mastery};
+    records[key]={...old,[level]:(Number(old[level])||0)+1,mastery,masteryScore:score,lastReviewedAt:now,history:[...history,event].slice(-200)};
+    saveLearningRecords(records);savedRecords=records;
+    setCardMastery(prev=>({...prev,[key]:mastery}));setLastReviewedAt(prev=>({...prev,[key]:now}));
+  }
+  setStats(prev=>({...prev,[level]:prev[level]+1}));
+  if(mainMode==='bank')handleNext();
+  else if(mainMode==='review_active'){
+    setReviewCompletedCount(prev=>prev+1);
+    if(reviewIndex<reviewQueue.length-1){rememberCurrentReviewCard();setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);}
+    else if(reviewModeType==='single')setMainMode('review_done');
+    else{
+      rememberCurrentReviewCard();
+      const next=chooseWeightedWord(reviewPoolRef.current,savedRecords||loadLearningRecords(),recentReviewKeysRef.current);
+      if(next){const key=learningKey(next.id,next.__bookId||activeBookId);recentReviewKeysRef.current=[...recentReviewKeysRef.current,key].slice(-12);setReviewQueue(prev=>[...prev,next]);setIsFlipped(false);setTimeout(()=>setReviewIndex(prev=>prev+1),120);}
+    }
+  }
+};
+
 const startReviewSession=async()=>{
   if(crossBookQuiz&&selectedReviewBookIds.length===0){setNotice("請至少選擇一本書。");return;}
   if(!crossBookQuiz&&selectedReviewGroups.length===0){setNotice("請至少選擇一個複習組別！");return;}
@@ -384,8 +450,16 @@ const startReviewSession=async()=>{
     return true;
   });
   if(pool.length===0){setNotice("沒有符合條件的單字；All+ 目前尚未加入單字資料。");return;}
-  pool=[...pool].sort(()=>Math.random()-.5);if(!isInfiniteCount&&reviewCountInput>0)pool=pool.slice(0,Number(reviewCountInput));
-  setReviewQueue(pool);setReviewIndex(0);setReviewCompletedCount(0);setIsFlipped(false);setMainMode('review_active');setNotice(`已載入 ${pool.length} 張${crossBookQuiz?'跨書':''}測驗卡。`);
+  pool=shuffleArray(pool);if(!isInfiniteCount&&reviewCountInput>0)pool=pool.slice(0,Number(reviewCountInput));
+  reviewPoolRef.current=pool;
+  recentReviewKeysRef.current=[];
+  if(reviewModeType==='endless'){
+    const first=chooseWeightedWord(pool,loadLearningRecords(),[]);
+    const firstKey=first?learningKey(first.id,first.__bookId||activeBookId):null;
+    if(firstKey)recentReviewKeysRef.current=[firstKey];
+    setReviewQueue(first?[first]:[]);
+  }else setReviewQueue(pool);
+  setReviewIndex(0);setReviewCompletedCount(0);setIsFlipped(false);setMainMode('review_active');setNotice(`已載入 ${pool.length} 張${crossBookQuiz?'跨書':''}候選卡；${reviewModeType==='endless'?'無盡模式將依熟練度、歷史表現與冷卻機制動態抽卡。':'本次採隨機不重複出卡。'}`);
 };
 
 const exportProgressBackup=()=>{
@@ -393,11 +467,18 @@ const exportProgressBackup=()=>{
     const records=JSON.parse(localStorage.getItem(LEARNING_STORAGE_KEY)||'{}')||{};
     const activity=JSON.parse(localStorage.getItem(DAILY_ACTIVITY_KEY)||'{}')||{};
     const customBooks=JSON.parse(localStorage.getItem(BOOKS_STORAGE_KEY)||'[]')||[];
+    // 除了每張卡的統計紀錄，也輸出一份攤平的逐次複習事件表，方便檢查時間序列。
+    // 舊版只有按鈕次數的資料不會有 history，不能憑空補出過去的時間。
+    const reviewHistory=Object.entries(records).flatMap(([wordKey,raw])=>{
+      const events=Array.isArray(raw?.history)?raw.history:[];
+      return events.map((event,index)=>({wordKey,index, rating:event.rating||null,at:event.at||null,scoreAfter:event.scoreAfter??null,masteryAfter:event.masteryAfter??null}));
+    }).filter(event=>event.at).sort((a,b)=>new Date(a.at).getTime()-new Date(b.at).getTime());
     const backup={
       format:'lexicon-studio-progress-backup',
-      version:1,
+      version:2,
       exportedAt:new Date().toISOString(),
       learningRecords:records,
+      reviewHistory,
       dailyActivity:activity,
       customBooks:Array.isArray(customBooks)?customBooks:[]
     };
@@ -408,7 +489,7 @@ const exportProgressBackup=()=>{
     a.download=`單字卡學習紀錄備份_${localDayKey()}.json`;
     document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),1500);
-    setNotice(`備份已匯出：${Object.keys(records).length} 筆字卡紀錄。請確認檔案已存入 iPad「檔案」App。`);
+    setNotice(`備份已匯出：${Object.keys(records).length} 筆字卡紀錄、${reviewHistory.length} 筆有時間戳的複習事件。舊版只有次數的紀錄無法還原過去時間；新版本之後的按鈕操作會逐次記錄時間。請確認檔案已存入 iPad「檔案」App。`);
   }catch(e){
     console.error('匯出備份失敗',e);
     setNotice('匯出失敗。請確認瀏覽器允許下載，或稍後再試。');
@@ -525,7 +606,7 @@ return(
     <button onClick={()=>progressBackupInputRef.current?.click()} className="rounded-xl border border-indigo-700 bg-indigo-950/60 hover:bg-indigo-900 px-3 py-2.5 text-xs font-bold text-indigo-100">📥 匯入／合併備份</button>
   </div>
   <input ref={progressBackupInputRef} type="file" accept=".json,application/json" onChange={importProgressBackup} />
-  <p className="mt-2 text-[11px] leading-relaxed text-gray-400">更新程式前先匯出 JSON，並確認備份已存入「檔案」App。匯入時會合併紀錄，不會清除目前獨有的字卡進度。</p>
+  <p className="mt-2 text-[11px] leading-relaxed text-gray-400">更新程式前先匯出 JSON，並確認備份已存入「檔案」App。備份包含逐次複習時間、評級與熟練度變化；舊版已累積的按鈕次數若沒有時間紀錄，無法回溯補齊。匯入時會合併紀錄，不會清除目前獨有的字卡進度。</p>
 </div>
 
 {notice&&<div className="mb-4 p-3 bg-indigo-950/70 border border-indigo-800/80 rounded-xl text-indigo-200 text-xs flex justify-between items-center shadow"><span>{notice}</span><button onClick={()=>setNotice(null)} className="text-indigo-400 font-bold ml-2 hover:text-white">✕</button></div>}
@@ -689,7 +770,7 @@ return(
 </button>  
 <button type="button" onClick={()=>setReviewModeType('endless')} className={`p-3 rounded-xl border text-left transition-all ${reviewModeType==='endless'?'bg-indigo-950/80 border-indigo-500 text-white shadow-md':'bg-gray-900/60 border-gray-800 text-gray-400 hover:bg-gray-900'}`}>  
 <div className="text-xs font-bold text-indigo-300 mb-1">♾️️ 無盡循環模式</div>  
-<div className="text-[11px] text-gray-400 leading-normal">打亂排序，字卡將持續循環重覆出現，適合無限刷題。</div>  
+<div className="text-[11px] text-gray-400 leading-normal">依熟練度、歷史答題與複習間隔動態抽卡，避免短時間重複出現。</div>  
 </button>  
 </div>  
 </div>  
