@@ -85,6 +85,7 @@ const[reviewQueue,setReviewQueue]=useState([]);
 const[reviewIndex,setReviewIndex]=useState(0);  
 const[reviewCompletedCount,setReviewCompletedCount]=useState(0);  
   
+// 每個單字的 JSON 物件可直接加入 synonyms 欄位，例如 synonyms:["give up","desert"]；中文面會自動顯示。
 const parseHtmlToWords=htmlText=>{  
 try{  
 const parser=new DOMParser(),doc=parser.parseFromString(htmlText,"text/html"),jsonScript=doc.getElementById("vocab-data");  
@@ -298,7 +299,7 @@ const handleFileUpload=event=>{
 const file=event.target.files[0];  
 if(!file)return;  
 const reader=new FileReader();  
-reader.onload=e=>{  
+reader.onload=async e=>{  
 const content=e.target.result;  
 let parsedData=null;  
 if(file.name.endsWith('.html')||file.name.endsWith('.htm')||content.includes('<html')||content.includes('vocab-data')){  
@@ -331,7 +332,8 @@ const currentBookId=mainMode==='review_active'?(reviewQueue[reviewIndex]?.__book
 const now=Date.now(),records=loadLearningRecords(),key=learningKey(currentWordId,currentBookId),old=normalizeLearningRecord(records[key]);
 records[key]={...old,[level]:(Number(old[level])||0)+1,mastery:level,lastReviewedAt:now};
 saveLearningRecords(records);
-setCardMastery(prev=>({...prev,[learningKey(currentWordId,currentBookId)]:level}));setLastReviewedAt(prev=>({...prev,[learningKey(currentWordId,currentBookId)]:now}));
+setCardMastery(prev=>({...prev,[key]:level}));
+setLastReviewedAt(prev=>({...prev,[key]:now}));
 }
 setStats(prev=>({...prev,[level]:prev[level]+1}));
 if(mainMode==='bank')handleNext();  
@@ -394,7 +396,15 @@ const currentCardNumber=mainMode==='review_active'?reviewIndex+1:currentIndex+1;
 const totalCardNumber=mainMode==='review_active'?reviewQueue.length:totalBankCount;  
 const progressPercentage=totalCardNumber>0?currentCardNumber/totalCardNumber*100:0;  
 const currentWordBookId=currentWord.__bookId||activeBookId;
-const currentStarState=starredWords[learningKey(currentWord.id,currentWordBookId)]||{yellow:false,blue:false};
+const currentLearningKey=learningKey(currentWord.id,currentWordBookId);
+const currentStarState=starredWords[currentLearningKey]||{yellow:false,blue:false};
+const currentMastery=cardMastery[currentLearningKey]||null;
+const masteryBadge={
+  red:{label:'陌生',dot:'🔴',classes:'text-rose-300 bg-rose-950/70 border-rose-700/70'},
+  yellow:{label:'生疏',dot:'🟡',classes:'text-amber-300 bg-amber-950/70 border-amber-700/70'},
+  green:{label:'熟練',dot:'🟢',classes:'text-emerald-300 bg-emerald-950/70 border-emerald-700/70'},
+  blue:{label:'精通',dot:'🔵',classes:'text-blue-300 bg-blue-950/70 border-blue-700/70'}
+}[currentMastery]||null;
 const todayFlipCount=Number(dailyActivity[localDayKey()])||0;
 const totalRatedCount=Object.values(stats).reduce((sum,n)=>sum+(Number(n)||0),0);
 const masteredCount=Object.values(cardMastery).filter(level=>level==='blue'||level==='green').length;
@@ -412,9 +422,12 @@ return <div className="text-left bg-gray-900/80 p-3 rounded-xl border border-gra
 };  
   
 const renderCardHeader=()=>(  
-<div className="flex justify-between items-center">  
-<span className="text-xs text-gray-500 font-mono">#{currentWord.id||"N/A"}{mainMode==='review_active'&&crossBookQuiz&&currentWord.__bookTitle?` · ${currentWord.__bookTitle}`:''}</span>  
-<div className="flex items-center gap-1.5">  
+<div className="flex justify-between items-center gap-2">
+<div className="flex items-center gap-2 min-w-0">
+<span className="text-xs text-gray-500 font-mono shrink-0">#{currentWord.id||"N/A"}{mainMode==='review_active'&&crossBookQuiz&&currentWord.__bookTitle?` · ${currentWord.__bookTitle}`:''}</span>
+{masteryBadge?<span title={`此字卡熟練度：${masteryBadge.label}`} className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] sm:text-xs font-bold whitespace-nowrap ${masteryBadge.classes}`}>{masteryBadge.dot} {masteryBadge.label}</span>:<span title="尚未評定此字卡熟練度" className="inline-flex items-center rounded-full border border-gray-700 bg-gray-900/70 px-2 py-1 text-[10px] text-gray-500 whitespace-nowrap">⚪ 未評定</span>}
+</div>
+<div className="flex items-center gap-1.5 shrink-0">  
 <button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'yellow',currentWordBookId)}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.yellow?'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-amber-400'}`} title="黃星星（不太記得）">★</button>  
 <button onClick={e=>{e.stopPropagation();toggleStar(currentWord.id,'blue',currentWordBookId)}} className={`p-1.5 rounded-lg text-xs font-bold transition-all border ${currentStarState.blue?'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-sm':'bg-gray-900/60 text-gray-600 border-gray-800 hover:text-blue-400'}`} title="藍星星（不太記得部分字義）">★</button>  
 <button onClick={e=>{e.stopPropagation();speakWord(currentWord.en||currentWord.word)}} className="ml-1 px-2.5 py-1 bg-indigo-900/40 hover:bg-indigo-900/70 text-indigo-300 rounded-lg text-xs flex items-center gap-1 border border-indigo-700/50 transition-colors" title="發音 (Pronunciation)">🔊 發音</button>  
@@ -704,7 +717,8 @@ return(
 <div className="text-2xl font-bold text-white">{currentWord.en||currentWord.word}</div>  
 {currentWord.pos&&<span className="text-indigo-400 text-xs italic font-mono bg-indigo-950/40 px-2.5 py-0.5 rounded-full border border-indigo-800/50">{currentWord.pos}</span>}  
 </div>  
-<div className="text-xl text-emerald-400 font-semibold mb-3 border-b border-gray-800 pb-2">{currentWord.zh||currentWord.meaning}</div>  
+<div className="text-xl text-emerald-400 font-semibold mb-2 border-b border-gray-800 pb-2">{currentWord.zh||currentWord.meaning}</div>  
+{(()=>{const raw=currentWord.synonyms??currentWord.synonym??currentWord.nearSynonyms??currentWord["近義詞"];const values=Array.isArray(raw)?raw:typeof raw==="string"?raw.split(/[;,，、]/).map(v=>v.trim()).filter(Boolean):[];return values.length>0?<div className="text-sm text-left bg-gray-900/60 p-2.5 rounded-lg border border-gray-800 mb-3"><span className="text-amber-300 font-semibold">近義詞：</span><span className="text-gray-200">{values.join(", ")}</span></div>:null;})()}  
 {renderExample(currentWord.ex)}  
 <div className="mt-3 space-y-2 text-xs text-left">  
 {currentWord.root&&<div className="bg-gray-900/60 p-2.5 rounded-lg border border-gray-800"><span className="text-indigo-400 font-semibold">字根字源：</span><span className="text-gray-300">{currentWord.root}</span></div>}  
@@ -766,4 +780,4 @@ const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<FlashcardApp/>);  
 </script>  
 </body>  
-</html>  
+</html>
