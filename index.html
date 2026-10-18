@@ -56,7 +56,8 @@ const groupCacheRef=useRef({});
 const groupLoadingRef=useRef({});  
 const bankLoadRequestRef=useRef(0);  
 const reviewStartRequestRef=useRef(0);  
-const fileInputRef=useRef(null);  
+const fileInputRef=useRef(null);
+const progressBackupInputRef=useRef(null);  
   
 const[mainMode,setMainMode]=useState('home');
 const[dailyActivity,setDailyActivity]=useState(()=>loadDailyActivity());
@@ -380,6 +381,71 @@ const startReviewSession=async()=>{
   setReviewQueue(pool);setReviewIndex(0);setReviewCompletedCount(0);setIsFlipped(false);setMainMode('review_active');setNotice(`已載入 ${pool.length} 張${crossBookQuiz?'跨書':''}測驗卡。`);
 };
 
+const exportProgressBackup=()=>{
+  try{
+    const records=JSON.parse(localStorage.getItem(LEARNING_STORAGE_KEY)||'{}')||{};
+    const activity=JSON.parse(localStorage.getItem(DAILY_ACTIVITY_KEY)||'{}')||{};
+    const customBooks=JSON.parse(localStorage.getItem(BOOKS_STORAGE_KEY)||'[]')||[];
+    const backup={
+      format:'lexicon-studio-progress-backup',
+      version:1,
+      exportedAt:new Date().toISOString(),
+      learningRecords:records,
+      dailyActivity:activity,
+      customBooks:Array.isArray(customBooks)?customBooks:[]
+    };
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`單字卡學習紀錄備份_${localDayKey()}.json`;
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    setNotice(`備份已匯出：${Object.keys(records).length} 筆字卡紀錄。請確認檔案已存入 iPad「檔案」App。`);
+  }catch(e){
+    console.error('匯出備份失敗',e);
+    setNotice('匯出失敗。請確認瀏覽器允許下載，或稍後再試。');
+  }
+};
+const importProgressBackup=async(event)=>{
+  const file=event.target.files?.[0];
+  event.target.value='';
+  if(!file)return;
+  try{
+    const backup=JSON.parse(await file.text());
+    if(!backup||backup.format!=='lexicon-studio-progress-backup'||!backup.learningRecords||typeof backup.learningRecords!=='object'||Array.isArray(backup.learningRecords)){
+      setNotice('這不是有效的單字卡學習紀錄備份，沒有更動任何資料。');return;
+    }
+    const incomingRecords=backup.learningRecords;
+    const currentRecords=JSON.parse(localStorage.getItem(LEARNING_STORAGE_KEY)||'{}')||{};
+    const mergedRecords={...currentRecords,...incomingRecords};
+    const currentActivity=JSON.parse(localStorage.getItem(DAILY_ACTIVITY_KEY)||'{}')||{};
+    const incomingActivity=backup.dailyActivity&&typeof backup.dailyActivity==='object'?backup.dailyActivity:{};
+    const mergedActivity={...currentActivity};
+    Object.entries(incomingActivity).forEach(([day,count])=>{mergedActivity[day]=Math.max(Number(mergedActivity[day])||0,Number(count)||0);});
+    const currentBooks=JSON.parse(localStorage.getItem(BOOKS_STORAGE_KEY)||'[]')||[];
+    const incomingBooks=Array.isArray(backup.customBooks)?backup.customBooks:[];
+    const bookMap=new Map();
+    [...(Array.isArray(currentBooks)?currentBooks:[]),...incomingBooks].forEach(book=>{
+      if(book&&book.id&&book.id!==BUILTIN_BOOK_ID&&book.id!==ALLPLUS_BOOK.id)bookMap.set(book.id,book);
+    });
+    const mergedBooks=[...bookMap.values()];
+    const recordCount=Object.keys(incomingRecords).length;
+    if(!window.confirm(`準備匯入備份（${recordCount} 筆字卡紀錄）。\n\n同一張字卡若有重複紀錄，將以備份檔中的資料為準；只有目前存在的紀錄會保留。每日活動次數採較大值，避免重複相加。\n\n是否繼續？`))return;
+    localStorage.setItem(LEARNING_STORAGE_KEY,JSON.stringify(mergedRecords));
+    localStorage.setItem(DAILY_ACTIVITY_KEY,JSON.stringify(mergedActivity));
+    localStorage.setItem(BOOKS_STORAGE_KEY,JSON.stringify(mergedBooks));
+    const state=buildLearningState(mergedRecords);
+    setStats(state.stats);setStarredWords(state.starred);setCardMastery(state.mastery);setLastReviewedAt(state.lastReviewedAt);
+    setDailyActivity(mergedActivity);
+    setBooks([BUILTIN_BOOK,ALLPLUS_BOOK,...mergedBooks]);
+    setNotice(`匯入完成！目前共有 ${Object.keys(mergedRecords).length} 筆字卡紀錄。原本只存在於此裝置的其他紀錄已保留。`);
+  }catch(e){
+    console.error('匯入備份失敗',e);
+    setNotice('無法讀取這個備份檔，資料沒有成功匯入。請選擇單字卡匯出的 JSON 備份。');
+  }
+};
+
 const resetApp=()=>{
 if(!window.confirm("確定要清除所有學習紀錄、熟練度、星號與複習歷史嗎？此操作無法復原。"))return;
 localStorage.removeItem(LEARNING_STORAGE_KEY);
@@ -445,6 +511,15 @@ return(
   </button>
   <button onClick={resetApp} className="w-10 h-10 rounded-xl border border-white/10 bg-white/[.04] text-gray-400 hover:text-white hover:bg-white/[.08] transition" title="重置學習紀錄">↺</button>
 </header>
+<div className="mb-5 rounded-2xl border border-indigo-900/70 bg-indigo-950/30 p-3">
+  <div className="text-xs text-indigo-200 font-bold mb-2">🛡️ 學習紀錄備份</div>
+  <div className="grid grid-cols-2 gap-2">
+    <button onClick={exportProgressBackup} className="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-3 py-2.5 text-xs font-bold text-white">📤 匯出備份</button>
+    <button onClick={()=>progressBackupInputRef.current?.click()} className="rounded-xl border border-indigo-700 bg-indigo-950/60 hover:bg-indigo-900 px-3 py-2.5 text-xs font-bold text-indigo-100">📥 匯入／合併備份</button>
+  </div>
+  <input ref={progressBackupInputRef} type="file" accept=".json,application/json" onChange={importProgressBackup} />
+  <p className="mt-2 text-[11px] leading-relaxed text-gray-400">更新程式前先匯出 JSON，並確認備份已存入「檔案」App。匯入時會合併紀錄，不會清除目前獨有的字卡進度。</p>
+</div>
 
 {notice&&<div className="mb-4 p-3 bg-indigo-950/70 border border-indigo-800/80 rounded-xl text-indigo-200 text-xs flex justify-between items-center shadow"><span>{notice}</span><button onClick={()=>setNotice(null)} className="text-indigo-400 font-bold ml-2 hover:text-white">✕</button></div>}
 
@@ -780,4 +855,4 @@ const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<FlashcardApp/>);  
 </script>  
 </body>  
-</html>
+</html>  
