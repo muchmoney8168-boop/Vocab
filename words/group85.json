@@ -276,136 +276,138 @@
     "mem": "想像電影突然按下暫停鍵，所有人都定格不動，連時間彷彿也停止了。standstill 就是完全停住的狀態，例如交通陷入停滯或事情毫無進展。",
     "syn": "halt（停止）、pause（暫停）、deadlock（僵局；停滯）"
   },
+ [
   {
     "id": 4229,
     "en": "stare",
     "pos": "v./n.",
-    "zh": "凝視；瞪著看；凝視",
-    "ex": "Jason is a so-called phubber. He can stare his phone during the meal without a word.<br>傑森是個名副其實的低頭族。他可以用整全程盯著他的手機不發一語。",
-    "root": "源自古英語 starian，意為「凝視、盯著看」。",
-    "mem": "想像上課時老師突然點名，你卻還死盯著手機螢幕，眼睛一動也不動。這種長時間盯著看的動作就是 stare。記住：**stare＝死盯著看**。",
-    "syn": "gaze（凝視）、glare（怒視）、peer（仔細看）"
+    "zh": "v. 凝視；盯著看；n. 凝視",
+    "ex": "Jason is a so-called phubber. He can stare at his phone during the meal without a word.",
+    "root": "stare → star（星星）+ e（輔助拆解）",
+    "mem": "想像有人吃飯時死盯著手機，眼神像在凝視天上的星星一樣專注。stare 就是「凝視、盯著看」。",
+    "syn": "gaze（凝視）；look（看）"
   },
   {
     "id": 4230,
     "en": "stark",
     "pos": "adj.",
-    "zh": "不折不扣的；完全的",
-    "ex": "She is a stark shopaholic. Not to mention cosmetics, only her shoes can stuff full her hallway.<br>她是個不折不扣的購物狂，不用說化妝品，光她的鞋子就可以塞爆她家玄關了。",
-    "root": "源自古英語 stearc，原有「僵硬、嚴酷、強烈」等意思，後引申為「完全的、十足的」。",
-    "mem": "想像一個購物狂的玄關堆滿鞋子，連走路的地方都沒有！這不是普通的購物狂，而是 stark shopaholic——不折不扣的購物狂。把 stark 記成「程度強到毫不含糊」。",
-    "syn": "complete（完全的）、absolute（絕對的）、utter（十足的）"
+    "zh": "荒涼的；赤裸裸的；鮮明的；完全的",
+    "ex": "She is a stark shopaholic. Not to mention cosmetics, only her shoes can stuff full her hallway.",
+    "root": "stark → star（星星）+ k（輔助拆解）",
+    "mem": "想像天空突然只剩一顆刺眼的星星，四周一片空蕩、毫無遮掩。stark 可表示「荒涼的、赤裸裸的」，stark contrast 則是「鮮明的對比」。",
+    "syn": "bare（赤裸的）；plain（明顯的；簡單的）"
   },
   {
     "id": 4231,
     "en": "startle",
     "pos": "v.",
-    "zh": "使吃驚",
-    "ex": "I was startled that my little sister could unlock my room. Isn’t she just 3 years old?<br>我很驚訝我小妹妹竟然解開了我房間的鎖。她不是只有三歲而已嗎？",
-    "root": "源自古英語 steartlian，與突然驚動、受驚有關。",
-    "mem": "想像你晚上專心讀書，突然有人從背後大喊「嘿！」你整個人嚇得跳起來。讓人突然嚇一跳，就是 startle；被嚇到則是 be startled。",
-    "syn": "surprise（使驚訝）、shock（使震驚）、frighten（使害怕）"
+    "zh": "使吃驚；使嚇一跳",
+    "ex": "I was startled that my little sister could unlock my room. Isn't she just 3 years old?",
+    "root": "startle → start（開始）+ le（輔助拆解）",
+    "mem": "妹妹突然解開房門鎖，你驚訝得立刻跳起來，大喊：「Start！嚇死我了！」startle 就是「使人嚇一跳」。",
+    "syn": "scare（嚇唬）；shock（使震驚）"
   },
   {
     "id": 4232,
     "en": "startled",
     "pos": "adj.",
-    "zh": "感到驚訝的",
-    "ex": "His language ability really makes his parents feel so startled and they are very proud of him.<br>他的語言能力讓他父母驚訝並且非常引他為傲。",
-    "root": "startle（使吃驚）+ -ed（表示受到某種影響的狀態）→ 感到吃驚的",
-    "mem": "記住這組：startle 是「嚇到別人」，startled 是「自己被嚇到」。想像爸媽發現孩子竟然會說好幾種語言，驚訝得張大嘴巴：They are startled!",
-    "syn": "surprised（驚訝的）、shocked（震驚的）、astonished（驚愕的）"
+    "zh": "感到驚訝的；受驚的",
+    "ex": "His language ability really makes his parents feel so startled and they are very proud of him.",
+    "root": "startled = startle（使嚇一跳）+ -ed（表示受到影響的狀態）",
+    "mem": "startle 是「使人嚇一跳」，startled 就是「被嚇到的」。想像爸媽突然聽見孩子流利地說外語，驚訝得瞪大眼睛。",
+    "syn": "shocked（震驚的）；surprised（驚訝的）"
   },
   {
     "id": 4233,
     "en": "startling",
     "pos": "adj.",
-    "zh": "令人吃驚的",
-    "ex": "It’s startling that my cake in the refrigerator still left completely after my brother opened it.<br>令人吃驚的是在我哥哥開完冰箱後我的蛋糕仍然完整的留在那裡。",
-    "root": "startle（使吃驚）+ -ing（表示具有某種效果的）→ 令人吃驚的",
-    "mem": "用 -ing 和 -ed 對照記：startling 是「讓人嚇一跳的事物」，startled 是「被嚇到的人」。蛋糕竟然沒被哥哥吃掉，這件事本身很 startling！",
-    "syn": "astonishing（令人驚訝的）、shocking（令人震驚的）、surprising（令人意外的）"
+    "zh": "令人吃驚的；驚人的",
+    "ex": "It's startling that my cake in the refrigerator still left completely after my brother opened it.",
+    "root": "startling = startle（使嚇一跳）+ -ing（形成描述事物特徵的形容詞）",
+    "mem": "startled 是「人被嚇到」，startling 是「事情令人嚇一跳」。想像你打開冰箱，發現弟弟居然沒偷吃蛋糕，這種令人意外的情況真是 startling！",
+    "syn": "surprising（令人驚訝的）；amazing（令人驚奇的）"
   },
   {
     "id": 4234,
     "en": "starvation",
     "pos": "n.",
-    "zh": "飢餓；餓死",
-    "ex": "I’m suffering a severe starvation because my brother ate all the food and left nothing for me in the refrigerator.<br>我現在身陷於嚴重的飢餓因為我弟弟將冰箱光了所有冰箱的食物，一點都沒留給我。",
-    "root": "starve（挨餓）+ -ation（形成名詞的字尾）→ 飢餓的狀態",
-    "mem": "starve 是「挨餓」，starvation 是「飢餓的狀態」。想像打開冰箱，裡面竟然空空如也，連一口食物都沒有！這種嚴重缺乏食物的狀態就是 starvation。",
-    "syn": "hunger（飢餓）、famine（饑荒）、deprivation（匱乏）"
+    "zh": "飢餓；餓死；饑荒",
+    "ex": "I'm suffering severe starvation because my brother ate all the food and left nothing for me in the refrigerator.",
+    "root": "starvation = starve（挨餓）+ -ation（名詞字尾）",
+    "mem": "starve（挨餓）+ -ation（名詞字尾）→ starvation（飢餓、餓死）。想像弟弟把冰箱裡的食物全部吃光，你餓到打開冰箱只剩一片空白！",
+    "syn": "hunger（飢餓）；famine（饑荒）"
   },
   {
     "id": 4235,
     "en": "starve",
     "pos": "v.",
-    "zh": "（使）餓死",
-    "ex": "A lot of children starve to death in the Africa where the food and water supply are poorly insufficient.<br>很多孩子餓死在非洲因為那裡的食物和水源的供應都非常的不足。",
-    "root": "源自古英語 steorfan，原意與死亡有關，後來發展出「因缺乏食物而挨餓、餓死」的意思。",
-    "mem": "把 starve 和 starvation 一起記：starve 是動作「挨餓」，starvation 是名詞「飢餓」。常見搭配是 starve to death＝餓死，starve for attention＝渴望受到關注。",
-    "syn": "hunger（挨餓）、famish（使挨餓；挨餓）、deprive（剝奪）"
+    "zh": "挨餓；餓死；使挨餓",
+    "ex": "A lot of children starve to death in Africa where the food and water supply are poorly insufficient.",
+    "root": "",
+    "mem": "諧音聯想：「死他餓！」想像有人餓得大喊「死他餓、死他餓！」連喊好幾聲，因為他已經餓得受不了了。starve 就是「挨餓」，starve to death 就是「餓死」。",
+    "syn": "hunger（挨餓）；famish（使挨餓）"
   },
   {
     "id": 4236,
     "en": "starving",
     "pos": "adj.",
-    "zh": "飢餓的",
-    "ex": "I’m starving! Can we just have something to eat?<br>我快餓死了！我們可以去買點東西吃嗎？",
-    "root": "starve（挨餓）+ -ing（表示正在經歷某種狀態）→ 飢餓的",
-    "mem": "想像你放學後餓得肚子咕嚕叫，一看到餐廳就衝進去大喊：「I'm starving!」這是比 I'm hungry 更強烈的說法，表示「我快餓扁了！」",
-    "syn": "hungry（飢餓的）、famished（餓極了的）、ravenous（極度飢餓的）"
+    "zh": "飢餓的；餓極了的",
+    "ex": "I'm starving! Can we just have something to eat?",
+    "root": "starving = starve（挨餓）+ -ing（形成描述狀態的形容詞）",
+    "mem": "starve（挨餓）+ -ing → starving（正在挨餓、餓極了）。想像你餓到抱著肚子大喊：「I'm starving！快給我食物！」",
+    "syn": "hungry（飢餓的）；famished（餓極了的）"
   },
   {
     "id": 4237,
     "en": "state",
     "pos": "v./n.",
-    "zh": "陳述；說明；狀態；情形",
-    "ex": "I am often in a state of nerves before taking tests.<br>考試前我經常是很緊張的。",
-    "root": "源自拉丁語 status，與「站立、所處的位置或狀況」有關。",
-    "mem": "想像老師問你考試前的狀態，你清楚地回答：「我很緊張。」你把自己的情況說出來，就是 state（陳述）；你所處的情況則是 a state（狀態）。",
-    "syn": "condition（狀況）、situation（情形）、declare（陳述）"
+    "zh": "v. 陳述；說明；n. 狀態；情形；州；國家",
+    "ex": "I am often in a state of nerves before taking tests.",
+    "root": "state → stat（站立、固定；輔助拆解）+ e",
+    "mem": "想像考試前你緊張得整個人像被釘在原地，一動也不敢動。這就是 a nervous state（緊張的狀態）。state 作動詞時則表示「陳述、說明」。",
+    "syn": "condition（狀態）；say（說明）"
   },
   {
     "id": 4238,
     "en": "statement",
     "pos": "n.",
-    "zh": "陳述；敘述",
-    "ex": "Your statements have some logical mistakes. I am wondering maybe you can rewrite it again.<br>你的陳述犯了些邏輯上的錯誤，我在想您可以重寫一遍。",
-    "root": "state（陳述）+ -ment（形成名詞的字尾）→ 陳述的內容",
-    "mem": "state 是「陳述」，statement 就是「說出來或寫下來的陳述」。想像數學證明中，你寫下一句主張，老師檢查後發現其中有邏輯錯誤，那句話就是一個 statement。",
-    "syn": "declaration（聲明）、remark（言論）、assertion（主張）"
+    "zh": "陳述；聲明；說明",
+    "ex": "Your statements have some logical mistakes. I am wondering maybe you can rewrite them again.",
+    "root": "statement = state（陳述）+ -ment（名詞字尾）",
+    "mem": "state（陳述）+ -ment（名詞字尾）→ statement（陳述、聲明）。想像老師拿著你的 statement，發現裡面有邏輯錯誤，要求你重寫。",
+    "syn": "remark（言論）；claim（主張）"
   },
   {
     "id": 4239,
     "en": "statesman",
     "pos": "n.",
-    "zh": "政治家；具有明智且卓越政治見識的政治人物",
-    "ex": "He is an outstanding statesman that no one can do better than him.<br>他是一個優秀的政治家，沒有人能做的比他更好。",
-    "root": "state（國家；政治）+ man（人）→ 從事國家政治事務的人",
-    "mem": "statesman 不只是一般的政治人物，更強調有遠見、有能力處理國家大事。想像一位政治家站在國家地圖前，思考如何讓人民過得更好。",
-    "syn": "politician（政治人物）、leader（領導者）、diplomat（外交官）"
+    "zh": "政治家；國家政治領袖",
+    "ex": "He is an outstanding statesman that no one can do better than him.",
+    "root": "statesman = state（國家）+ man（人）",
+    "mem": "state（國家）+ man（人）→ 為國家處理政事的人，就是 statesman（政治家）。",
+    "syn": "politician（政治人物）；leader（領袖）"
   },
   {
     "id": 4240,
     "en": "statistics",
     "pos": "n.",
-    "zh": "統計數字；統計資料",
-    "ex": "According to the epidemiological statistics, neurodegenerative diseases will become the second leading cause of death.<br>根據流行性病學的統計，退化性神經性疾病將成為第二大死因。",
-    "root": "源自 statistic（統計的），與拉丁語 status（狀態、情況）有關。",
-    "mem": "想像你正在做科展，把一大堆調查結果整理成表格和圖表。這些用來分析情況的數字，就是 statistics（統計資料）。注意：statistics 也可以指「統計學」。",
-    "syn": "data（資料）、figures（數字；數據）、statistical information（統計資訊）"
+    "zh": "統計學；統計資料",
+    "ex": "According to the epidemiological statistics, neurodegenerative diseases will become the second leading cause of death.",
+    "root": "statistics → statistic（統計資料）+ -s（複數形式或學科名稱中的字尾形式）",
+    "mem": "把 statistic 想成一筆統計數據，statistics 則是整理大量數據、計算比例與分析結果的統計資料或統計學。",
+    "syn": "data（數據）；figures（數字；統計數據）"
   },
   {
     "id": 4241,
     "en": "statue",
     "pos": "n.",
     "zh": "雕像；塑像",
-    "ex": "My dream is to make a huge statue of myself to decorate my home.<br>我的夢想是製造一個我自己的大雕像來裝飾我家。",
-    "root": "源自拉丁語 statua，與 statuere（設立、放置）有關。",
-    "mem": "想像廣場上有一座巨大的人物雕像，站在那裡多年都不會動。statue 是「雕像」；可聯想 statue of liberty（自由女神像）。",
-    "syn": "sculpture（雕塑）、figure（塑像；人像）、monument（紀念碑）"
+    "ex": "My dream is to make a huge statue of myself to decorate my home.",
+    "root": "statue → stat（站立；輔助拆解）+ ue",
+    "mem": "stat（站立）+ ue（輔助拆解）→ 想像一個人站著一動也不動，最後被雕成一座 statue（雕像）。",
+    "syn": "sculpture（雕塑）；figure（塑像）"
   },
+ 
   {
     "id": 4242,
     "en": "status",
